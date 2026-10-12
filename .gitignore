@@ -17,3 +17,6 @@ server/media/
 # OS / editor
 .DS_Store
 .idea/
+
+# 개발 스크립트 로그
+.dev-logs/

@@ -53,6 +53,15 @@ npx expo start
 - 패키지는 `npx expo install <패키지>`로 추가한다(SDK 호환 버전 자동 선택).
 - 보안 저장소 등 네이티브 모듈이 있어 실기기 테스트는 개발 빌드(`npx expo run:android` 또는 EAS)가 필요할 수 있다.
 
+### 아이폰(Expo Go)으로 확인하기
+
+```bash
+brew install cloudflared
+./scripts/dev-phone.sh
+```
+
+서버 migrate·실행, 터널 2개(API·Metro), `app/.env` 갱신, Expo 실행을 한 번에 한다. 같은 와이파이가 아니어도 된다. 터널 주소는 실행할 때마다 바뀌므로 매번 새로 뜬 QR을 찍는다. Ctrl+C 한 번이면 전부 종료되고, 로그는 `.dev-logs/`에 남는다.
+
 ## 개발용 mock 규칙
 
 | 대상 | 입력 | 결과 |
