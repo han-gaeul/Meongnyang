@@ -50,6 +50,8 @@ export default function NewPost() {
       allowsMultipleSelection: true,
       selectionLimit: MAX_IMAGES - photos.length,
       quality: 0.8,
+      // iOS HEIC 사진을 서버가 읽을 수 있는 JPEG로 받는다
+      preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
     });
     if (result.canceled) return;
     setPhotos((prev) =>
