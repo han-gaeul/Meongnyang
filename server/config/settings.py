@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "accounts",
     "pets",
+    "uploads",
+    "moderation",
+    "community",
 ]
 
 MIDDLEWARE = [
@@ -91,6 +94,24 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# 업로드 파일: 로컬은 server/media, 배포는 S3 (AWS_STORAGE_BUCKET_NAME이 있으면)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+AWS_STORAGE_BUCKET_NAME = env.str("AWS_STORAGE_BUCKET_NAME", default="")
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+if AWS_STORAGE_BUCKET_NAME:
+    STORAGES["default"] = {"BACKEND": "storages.backends.s3.S3Storage"}
+    AWS_S3_REGION_NAME = env.str("AWS_S3_REGION_NAME", default="ap-northeast-2")
+    AWS_LOCATION = "media"
+    AWS_DEFAULT_ACL = None  # 버킷 정책으로 관리
+    AWS_QUERYSTRING_AUTH = False  # 공개 이미지. 민감 파일은 별도 버킷·서명 URL로
+
+# 서로 다른 사람의 신고가 이 수에 도달하면 자동 숨김
+REPORT_HIDE_THRESHOLD = env.int("REPORT_HIDE_THRESHOLD", default=3)
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
@@ -102,7 +123,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "common.pagination.DefaultCursorPagination",
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
-    "DEFAULT_THROTTLE_RATES": {"auth": "20/min", "verify": "10/hour"},
+    "DEFAULT_THROTTLE_RATES": {"auth": "20/min", "verify": "10/hour", "upload": "60/hour"},
 }
 
 SIMPLE_JWT = {

@@ -1,5 +1,24 @@
+import { File } from 'expo-file-system';
+import { Platform } from 'react-native';
+
 import { API_URL } from './config';
 import { loadTokens, saveTokens, type Tokens } from './token-storage';
+
+const TIMEOUT_MS = 15_000;
+const UPLOAD_TIMEOUT_MS = 60_000;
+
+/** 응답이 없으면 무한 대기하지 않고 안내 메시지로 실패시킨다. */
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs = TIMEOUT_MS): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch {
+    throw new ApiError(0, { detail: '서버에 연결할 수 없어요. 네트워크를 확인하고 다시 시도해 주세요.' });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 export class ApiError extends Error {
   constructor(
@@ -30,7 +49,7 @@ export function setSessionExpiredHandler(handler: (() => void) | null) {
 let refreshing: Promise<Tokens | null> | null = null;
 
 async function refreshTokens(refresh: string): Promise<Tokens | null> {
-  const res = await fetch(`${API_URL}/api/v1/auth/token/refresh`, {
+  const res = await fetchWithTimeout(`${API_URL}/api/v1/auth/token/refresh`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refresh }),
@@ -48,18 +67,23 @@ type RequestOptions = { method?: string; body?: unknown; auth?: boolean };
 /**
  * 서버 호출. access 토큰이 만료(401)되면 refresh로 한 번 갱신 후 재시도한다.
  * 갱신도 실패하면 세션 만료 처리(로그아웃)한다.
+ *
+ * path: '/posts' 처럼 /api/v1 아래 경로, 또는 페이지네이션 next 같은 전체 URL.
+ * body: 객체면 JSON, FormData면 multipart로 보낸다.
  */
 export async function api<T = unknown>(path: string, { method = 'GET', body, auth = true }: RequestOptions = {}): Promise<T> {
+  const url = /^https?:\/\//.test(path) ? path : `${API_URL}/api/v1${path}`;
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
   const send = (access?: string) =>
-    fetch(`${API_URL}/api/v1${path}`, {
+    fetchWithTimeout(url, {
       method,
       headers: {
         Accept: 'application/json',
-        ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...(body !== undefined && !isForm ? { 'Content-Type': 'application/json' } : {}),
         ...(access ? { Authorization: `Bearer ${access}` } : {}),
       },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
+      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
+    }, isForm ? UPLOAD_TIMEOUT_MS : TIMEOUT_MS);
 
   let tokens = auth ? await loadTokens() : null;
   let res = await send(tokens?.access);
@@ -114,3 +138,50 @@ export type Pet = {
 };
 
 export type Page<T> = { next: string | null; previous: string | null; results: T[] };
+
+export type Author = { id: number; nickname: string };
+export type ImageInfo = { id: number; url: string; width: number; height: number };
+
+export type Post = {
+  id: number;
+  author: Author;
+  region_name: string;
+  species: 'all' | 'dog' | 'cat';
+  title: string;
+  content: string;
+  tags: string[];
+  images: ImageInfo[];
+  like_count: number;
+  comment_count: number;
+  is_liked: boolean;
+  is_mine: boolean;
+  is_hidden: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Comment = {
+  id: number;
+  post: number;
+  author: Author;
+  content: string;
+  is_mine: boolean;
+  is_hidden: boolean;
+  created_at: string;
+};
+
+export type ReportReason = 'money' | 'spam' | 'abuse' | 'danger' | 'other';
+
+/** 기기 사진을 서버에 올리고 id를 받는다. (서버가 JPEG 변환·위치정보 제거) */
+export async function uploadImage(asset: { uri: string; mimeType?: string | null; fileName?: string | null }) {
+  const form = new FormData();
+  const name = asset.fileName ?? 'photo.jpg';
+  if (Platform.OS === 'web') {
+    form.append('file', await (await fetch(asset.uri)).blob(), name);
+  } else {
+    // Expo SDK 57의 fetch는 RN식 { uri, name, type } 첨부를 지원하지 않는다.
+    // expo-file-system의 File(Blob 구현체)로 넣어야 한다.
+    form.append('file', new File(asset.uri) as unknown as Blob, name);
+  }
+  return api<ImageInfo>('/uploads/images', { method: 'POST', body: form });
+}

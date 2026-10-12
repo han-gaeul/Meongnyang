@@ -5,6 +5,8 @@ drf-spectacular==0.30.0
 django-environ==0.14.0
 psycopg[binary]==3.3.6
 requests==2.34.2
+Pillow==12.3.0
+django-storages[s3]==1.14.6
 
 # test
 pytest==9.1.1

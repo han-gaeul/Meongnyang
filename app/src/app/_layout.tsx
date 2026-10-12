@@ -31,8 +31,8 @@ function RootNavigator() {
         <Stack.Screen name="(app)" />
       </Stack.Protected>
       <Stack.Protected guard={!isSignedIn}>
-        <Stack.Screen name="sign-in" />
-        <Stack.Screen name="sign-up" options={{ headerShown: true, title: '회원가입' }} />
+        <Stack.Screen name="sign-in" options={{ title: '로그인' }} />
+        <Stack.Screen name="sign-up" options={{ headerShown: true, title: '회원가입', headerBackTitle: '로그인' }} />
       </Stack.Protected>
     </Stack>
   );

@@ -17,11 +17,11 @@ export default function TabLayout() {
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textSecondary,
       }}>
-      <Tabs.Screen name="index" options={{ title: '홈', tabBarIcon: icon('🏠') }} />
+      <Tabs.Screen name="index" options={{ title: '홈', headerShown: false, tabBarIcon: icon('🏠') }} />
       <Tabs.Screen name="gatherings" options={{ title: '모임', tabBarIcon: icon('🐾') }} />
       <Tabs.Screen name="map" options={{ title: '지도', tabBarIcon: icon('📍') }} />
       <Tabs.Screen name="journal" options={{ title: '일기', tabBarIcon: icon('📔') }} />
-      <Tabs.Screen name="my" options={{ title: '마이', tabBarIcon: icon('🙂') }} />
+      <Tabs.Screen name="my" options={{ title: '마이', headerShown: false, tabBarIcon: icon('🙂') }} />
     </Tabs>
   );
 }
