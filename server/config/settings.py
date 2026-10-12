@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     "uploads",
     "moderation",
     "community",
+    "gatherings",
+    "meetups",
 ]
 
 MIDDLEWARE = [
@@ -112,6 +114,13 @@ if AWS_STORAGE_BUCKET_NAME:
 
 # 서로 다른 사람의 신고가 이 수에 도달하면 자동 숨김
 REPORT_HIDE_THRESHOLD = env.int("REPORT_HIDE_THRESHOLD", default=3)
+
+# 만남 인증: QR 유효 시간(초), 두 기기 사이 허용 거리(m)
+MEETUP_TOKEN_TTL = 180
+MEETUP_MAX_DISTANCE_M = 200
+# 이웃 단계: 만남 횟수 기준 (설계 문서 초안 값)
+NEIGHBOR_MEETS = 1
+REGULAR_NEIGHBOR_MEETS = 3
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
@@ -123,7 +132,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "common.pagination.DefaultCursorPagination",
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
-    "DEFAULT_THROTTLE_RATES": {"auth": "20/min", "verify": "10/hour", "upload": "60/hour"},
+    "DEFAULT_THROTTLE_RATES": {"auth": "20/min", "verify": "10/hour", "upload": "60/hour", "meetup": "60/hour"},
 }
 
 SIMPLE_JWT = {
@@ -137,6 +146,10 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "멍냥동네 API",
     "VERSION": "0.1.0",
     "COMPONENT_SPLIT_REQUEST": True,
+    "ENUM_NAME_OVERRIDES": {
+        "PetSpeciesEnum": "pets.models.Pet.Species",
+        "AudienceSpeciesEnum": "community.models.Post.Species",  # 글·모임 공통: 모두/강아지/고양이
+    },
 }
 
 if not DEBUG:

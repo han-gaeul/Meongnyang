@@ -170,7 +170,47 @@ export type Comment = {
   created_at: string;
 };
 
-export type ReportReason = 'money' | 'spam' | 'abuse' | 'danger' | 'other';
+export type PetBrief = Pick<Pet, 'id' | 'name' | 'species' | 'breed' | 'size' | 'weight_kg'>;
+
+export type Participation = {
+  id: number;
+  user: Author;
+  pet: PetBrief | null;
+  message: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+  created_at: string;
+  decided_at: string | null;
+};
+
+export type Gathering = {
+  id: number;
+  host: Author;
+  kind: 'walk' | 'share';
+  species: 'all' | 'dog' | 'cat';
+  region_name: string;
+  title: string;
+  content: string;
+  place_name: string;
+  starts_at: string;
+  capacity: number;
+  status: 'open' | 'closed' | 'cancelled';
+  accepted_count: number;
+  participants: Participation[];
+  my_participation: Participation | null;
+  is_host: boolean;
+  is_hidden: boolean;
+  created_at: string;
+};
+
+export type Neighbor = {
+  id: number;
+  nickname: string;
+  meet_count: number;
+  last_met_on: string;
+  level: 'none' | 'neighbor' | 'regular';
+};
+
+export type ReportReason ='money' | 'spam' | 'abuse' | 'danger' | 'other';
 
 /** 기기 사진을 서버에 올리고 id를 받는다. (서버가 JPEG 변환·위치정보 제거) */
 export async function uploadImage(asset: { uri: string; mimeType?: string | null; fileName?: string | null }) {

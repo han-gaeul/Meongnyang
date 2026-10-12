@@ -33,6 +33,8 @@ def make_user(db):
 @pytest.fixture(autouse=True)
 def _media_tmp(settings, tmp_path):
     settings.MEDIA_ROOT = tmp_path / "media"
+    # 테스트에서만 빠른 해시 사용 (실서비스는 기본 PBKDF2)
+    settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
 
 @pytest.fixture
