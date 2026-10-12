@@ -12,6 +12,7 @@ urlpatterns = [
     path("api/v1/", include("community.urls")),
     path("api/v1/", include("gatherings.urls")),
     path("api/v1/", include("meetups.urls")),
+    path("api/v1/", include("favors.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
 ]

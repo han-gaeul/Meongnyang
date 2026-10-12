@@ -33,6 +33,7 @@ class NeighborSerializer(serializers.Serializer):
     nickname = serializers.CharField()
     meet_count = serializers.IntegerField()
     last_met_on = serializers.DateField()
+    favors_done = serializers.IntegerField(help_text="함께 마친 짧은 부탁 수")
     level = serializers.ChoiceField(choices=["none", "neighbor", "regular"])
 
 
@@ -49,6 +50,7 @@ def _neighbor(user, other_id) -> dict:
         "nickname": other.nickname,
         "meet_count": stats["count"],
         "last_met_on": stats["last_met_on"],
+        "favors_done": stats["favors_done"],
         "level": stats["level"],
     }
 
@@ -96,6 +98,7 @@ class NeighborListView(APIView):
                 "nickname": users[n["user_id"]].nickname,
                 "meet_count": n["count"],
                 "last_met_on": n["last_met_on"],
+                "favors_done": n["favors_done"],
                 "level": n["level"],
             }
             for n in stats

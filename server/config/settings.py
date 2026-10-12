@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "community",
     "gatherings",
     "meetups",
+    "favors",
 ]
 
 MIDDLEWARE = [
@@ -149,6 +150,11 @@ SPECTACULAR_SETTINGS = {
     "ENUM_NAME_OVERRIDES": {
         "PetSpeciesEnum": "pets.models.Pet.Species",
         "AudienceSpeciesEnum": "community.models.Post.Species",  # 글·모임 공통: 모두/강아지/고양이
+        "FavorStatusEnum": "favors.models.Favor.Status",
+        "FavorKindEnum": "favors.models.Favor.Kind",
+        "GatheringKindEnum": "gatherings.models.Gathering.Kind",
+        "GatheringStatusEnum": "gatherings.models.Gathering.Status",
+        "ApplicationStatusEnum": "gatherings.models.Participation.Status",
     },
 }
 

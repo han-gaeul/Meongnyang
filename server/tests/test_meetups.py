@@ -51,7 +51,8 @@ def test_same_pair_counts_once_per_day(member_api):
 
 
 @pytest.mark.django_db
-def test_three_days_makes_regular_neighbor(member_api):
+def test_three_meets_alone_stay_neighbor(member_api):
+    """단골 이웃은 만남 3회 + 짧은 부탁 1회 완료가 필요하다 (test_favors에서 확인)"""
     a, b = member_api(), member_api()
     today = timezone.localdate()
     for days_ago in (2, 1):
@@ -59,7 +60,7 @@ def test_three_days_makes_regular_neighbor(member_api):
             b.post("/api/v1/meetups/confirm", {"qr": qr_of(a), **NEAR}, format="json")
     res = b.post("/api/v1/meetups/confirm", {"qr": qr_of(a), **NEAR}, format="json")
     assert res.data["neighbor"]["meet_count"] == 3
-    assert res.data["neighbor"]["level"] == "regular"
+    assert res.data["neighbor"]["level"] == "neighbor"
 
 
 @pytest.mark.django_db
