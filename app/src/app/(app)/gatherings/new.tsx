@@ -9,27 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { api, type Gathering } from '@/lib/api';
-
-const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
-
-/** 오늘부터 7일 */
-function nextDays() {
-  const today = new Date();
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
-    const label = i === 0 ? '오늘' : i === 1 ? '내일' : `${d.getMonth() + 1}/${d.getDate()}(${WEEKDAYS[d.getDay()]})`;
-    return { value: String(i), label, date: d };
-  });
-}
-
-/** "19:00", "7:30", "1930" → [시, 분] */
-function parseTime(raw: string): [number, number] | null {
-  const m = raw.trim().match(/^(\d{1,2}):?(\d{2})$/);
-  if (!m) return null;
-  const h = Number(m[1]);
-  const min = Number(m[2]);
-  return h < 24 && min < 60 ? [h, min] : null;
-}
+import { nextDays, parseTime } from '@/lib/when-input';
 
 export default function NewGathering() {
   const params = useLocalSearchParams<{ kind?: string }>();
