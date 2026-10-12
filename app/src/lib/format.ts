@@ -9,4 +9,22 @@ export function timeAgo(iso: string, now: Date = new Date()): string {
   return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
 }
 
-export const SPECIES_LABEL = { all: '모두', dog: '강아지', cat: '고양이' } as const;
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+/** "오늘 19:00", "내일 7:30", "10월 15일(수) 19:00" */
+export function whenLabel(iso: string, now: Date = new Date()): string {
+  const d = new Date(iso);
+  const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const days = Math.round((startOf(d) - startOf(now)) / 86400000);
+  const time = `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+  if (days === 0) return `오늘 ${time}`;
+  if (days === 1) return `내일 ${time}`;
+  if (days === 2) return `모레 ${time}`;
+  return `${d.getMonth() + 1}월 ${d.getDate()}일(${WEEKDAYS[d.getDay()]}) ${time}`;
+}
+
+export const KIND_LABEL = { walk: '산책', share: '나눔' } as const;
+export const GATHERING_STATUS_LABEL = { open: '모집 중', closed: '마감', cancelled: '취소됨' } as const;
+export const LEVEL_LABEL = { none: '', neighbor: '이웃', regular: '단골 이웃' } as const;
+
+export const SPECIES_LABEL ={ all: '모두', dog: '강아지', cat: '고양이' } as const;

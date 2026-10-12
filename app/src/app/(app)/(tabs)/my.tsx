@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useSession } from '@/ctx';
 import { api, type Page, type Pet } from '@/lib/api';
+import { getCurrentCoords, regionNameOf } from '@/lib/location';
 
 const STATUS_LABEL: Record<Pet['verification_status'], string> = {
   unverified: '미인증',
@@ -40,6 +41,31 @@ export default function My() {
       load();
     }, [load]),
   );
+
+  const [locating, setLocating] = useState(false);
+  const setNeighborhood = async () => {
+    setLocating(true);
+    setError(null);
+    try {
+      const coords = await getCurrentCoords();
+      const region = await regionNameOf(coords);
+      if (!region) throw new Error('동네 이름을 찾지 못했어요. 잠시 후 다시 시도해 주세요.');
+      // 서버에는 소수점 3자리(약 100m 단위)까지만 저장한다
+      await api('/me', {
+        method: 'PATCH',
+        body: {
+          region_name: region,
+          latitude: Number(coords.lat.toFixed(3)),
+          longitude: Number(coords.lng.toFixed(3)),
+        },
+      });
+      await reloadMe();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '동네를 설정하지 못했어요.');
+    } finally {
+      setLocating(false);
+    }
+  };
 
   const verifyIdentity = async () => {
     // TODO: PortOne 본인인증 창 → 받은 거래 ID를 서버로 전송. 지금은 개발용 mock.
@@ -80,6 +106,31 @@ export default function My() {
                 : '본인인증과 반려동물 인증을 마치면 모임과 부탁을 이용할 수 있어요.'}
             </ThemedText>
           </View>
+
+          <ThemedView type="backgroundElement" style={styles.card}>
+            <ThemedText type="smallBold">내 동네</ThemedText>
+            <ThemedText type="small">{me?.region_name || '아직 설정하지 않았어요.'}</ThemedText>
+            <Button
+              title={me?.region_name ? '현재 위치로 다시 설정' : '현재 위치로 동네 설정'}
+              variant={me?.region_name ? 'secondary' : 'primary'}
+              onPress={setNeighborhood}
+              loading={locating}
+            />
+          </ThemedView>
+
+          {me?.is_verified_member && (
+            <ThemedView type="backgroundElement" style={styles.card}>
+              <ThemedText type="smallBold">이웃</ThemedText>
+              <View style={styles.row}>
+                <ThemedText type="linkPrimary" onPress={() => router.push('/neighbors')}>
+                  내 이웃 보기
+                </ThemedText>
+                <ThemedText type="linkPrimary" onPress={() => router.push('/meetup')}>
+                  만남 인증 QR
+                </ThemedText>
+              </View>
+            </ThemedView>
+          )}
 
           <ThemedView type="backgroundElement" style={styles.card}>
             <ThemedText type="smallBold">휴대폰 본인인증</ThemedText>

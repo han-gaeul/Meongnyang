@@ -15,7 +15,11 @@ export function Chips<T extends string>({
 }) {
   const theme = useTheme();
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.scroll}
+      contentContainerStyle={styles.row}>
       {options.map((o) => {
         const selected = o.value === value;
         return (
@@ -42,6 +46,8 @@ export function Chips<T extends string>({
 }
 
 const styles = StyleSheet.create({
+  // 세로로 남는 공간을 차지하지 않도록 (flex 부모 안에서 늘어나는 문제 방지)
+  scroll: { flexGrow: 0 },
   row: { gap: Spacing.two },
   chip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: Spacing.three, paddingVertical: 6 },
 });
