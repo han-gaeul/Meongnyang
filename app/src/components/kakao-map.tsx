@@ -15,6 +15,10 @@ type Props = {
   onSelect: (id: number) => void;
   /** 지도를 움직여 중심이 바뀌었을 때 */
   onMove?: (center: Coords) => void;
+  /** 산책 경로 [[lat, lng], ...] */
+  path?: [number, number][];
+  /** 경로 전체가 보이게 맞춘다 (기록 끝난 산책 보기) */
+  fitPath?: boolean;
 };
 
 /** 카카오맵을 쓸 수 있는가 (키가 있고 앱에서 실행 중) */
@@ -24,7 +28,7 @@ export const kakaoMapAvailable = !!KAKAO_JS_KEY && Platform.OS !== 'web';
  * 카카오맵 JavaScript SDK를 WebView로 띄운다.
  * Expo Go에서도 동작하도록 네이티브 SDK 대신 JS SDK를 쓴다.
  */
-export function KakaoMap({ center, markers, selectedId, onSelect, onMove }: Props) {
+export function KakaoMap({ center, markers, selectedId, onSelect, onMove, path, fitPath }: Props) {
   const ref = useRef<WebView>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
@@ -39,6 +43,10 @@ export function KakaoMap({ center, markers, selectedId, onSelect, onMove }: Prop
   useEffect(() => {
     if (ready) ref.current?.injectJavaScript(`window.moveTo(${center.lat}, ${center.lng}); true;`);
   }, [ready, center.lat, center.lng]);
+
+  useEffect(() => {
+    if (ready && path) ref.current?.injectJavaScript(`window.setPath(${JSON.stringify(path)}, ${fitPath ? 'true' : 'false'}); true;`);
+  }, [ready, path, fitPath]);
 
   const onMessage = (e: WebViewMessageEvent) => {
     try {
@@ -99,6 +107,17 @@ function buildHtml(c: Coords) {
     post({type:'ready'});
   });
   window.moveTo = function(lat, lng){ if(!map) return; programmatic = true; map.setCenter(new kakao.maps.LatLng(lat, lng)); };
+  var line = null;
+  window.setPath = function(pts, fit){
+    if(!map) return;
+    var latlngs = pts.map(function(p){ return new kakao.maps.LatLng(p[0], p[1]); });
+    if(!line){ line = new kakao.maps.Polyline({ strokeWeight: 6, strokeColor: '#E07B39', strokeOpacity: 0.9 }); line.setMap(map); }
+    line.setPath(latlngs);
+    if(fit && latlngs.length > 1){
+      var b = new kakao.maps.LatLngBounds(); latlngs.forEach(function(l){ b.extend(l); });
+      programmatic = true; map.setBounds(b, 40, 40, 40, 40);
+    } else if(latlngs.length){ programmatic = true; map.panTo(latlngs[latlngs.length - 1]); }
+  };
   window.setMarkers = function(list, selected){
     overlays.forEach(function(o){ o.setMap(null); }); overlays = [];
     list.forEach(function(m){

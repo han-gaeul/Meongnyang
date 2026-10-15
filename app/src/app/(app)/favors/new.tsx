@@ -188,7 +188,11 @@ export default function NewFavor() {
           <ThemedText type="smallBold">🗒 돌봄 시트</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             약·식사 같은 자세한 내용은 맡은 이웃에게만 보여요. 다른 이웃에겐 산책 시간과 성격만 보여요.
-            {draft && draft.source.from_journal.length === 0 ? ' 일기를 쓰면 다음부터 자동으로 채워져요.' : ''}
+            {draft
+              ? draft.source.from_journal.length === 0
+                ? ' 산책·건강 일기를 쓰면 다음부터 자동으로 채워져요.'
+                : ` 최근 ${draft.source.days}일 일기로 미리 채웠어요. 확인하고 고쳐 주세요.`
+              : ''}
           </ThemedText>
           {!sheet ? (
             <ActivityIndicator />
@@ -284,9 +288,9 @@ export default function NewFavor() {
                 />
               </View>
 
-              <TextField label="요즘 컨디션" value={sheet.condition} onChangeText={(v) => patch({ condition: v })} maxLength={200} placeholder="예: 잘 먹고 활발해요" />
-              <TextField label="최근 특이사항" value={sheet.notes} onChangeText={(v) => patch({ notes: v })} maxLength={500} placeholder="예: 지난주 피부약 끝남" />
-              <TextField label="주의할 점" value={sheet.caution} onChangeText={(v) => patch({ caution: v })} maxLength={500} placeholder="예: 자전거를 보면 짖어요, 다른 개와 인사 X" />
+              <TextField label="요즘 컨디션" multiline value={sheet.condition} onChangeText={(v) => patch({ condition: v })} maxLength={200} placeholder="예: 잘 먹고 활발해요" />
+              <TextField label="최근 특이사항" multiline value={sheet.notes} onChangeText={(v) => patch({ notes: v })} maxLength={500} placeholder="예: 지난주 피부약 끝남" />
+              <TextField label="주의할 점" multiline value={sheet.caution} onChangeText={(v) => patch({ caution: v })} maxLength={500} placeholder="예: 자전거를 보면 짖어요, 다른 개와 인사 X" />
             </>
           )}
         </ThemedView>

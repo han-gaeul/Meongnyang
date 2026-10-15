@@ -355,6 +355,36 @@ export type PlaceReview = {
   created_at: string;
 };
 
+export type JournalKind = 'daily' | 'walk' | 'health';
+
+export type JournalEntry = {
+  id: number;
+  pet_id: number;
+  kind: JournalKind;
+  date: string;
+  title: string;
+  content: string;
+  share_in_care_sheet: boolean;
+  started_at: string | null;
+  ended_at: string | null;
+  duration_sec: number | null;
+  distance_m: number | null;
+  /** [[lat, lng], ...] 본인만 */
+  route: [number, number][];
+  meals_per_day: number | null;
+  meal_amount: string;
+  food: string;
+  vitality: number | null;
+  /** null = 기록 안 함, [] = 먹는 약 없음 */
+  meds: { name: string; dose: string; time: string }[] | null;
+  weight_kg: string | null;
+  images: ImageInfo[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type CalendarDay = { date: string; kinds: JournalKind[]; walk_minutes: number; count: number };
+
 export type ReportReason = 'money' | 'spam' | 'abuse' | 'danger' | 'other';
 
 /** 기기 사진을 서버에 올리고 id를 받는다. (서버가 JPEG 변환·위치정보 제거) */

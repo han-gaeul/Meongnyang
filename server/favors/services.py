@@ -90,11 +90,10 @@ def can_confirm(favor: Favor) -> bool:
 # ---- 돌봄 시트 ----
 
 def _journal_items(pet, days: int) -> dict:
-    """최근 일기에서 식사·약·컨디션·산책·특이사항을 뽑는다.
+    """최근 일기에서 식사·약·컨디션·산책·특이사항을 뽑는다 (journal.services)"""
+    from journal.services import care_sheet_items
 
-    일기 기능(GPS 산책·건강 일기)이 들어오면 여기서 집계한다. 지금은 빈 값.
-    """
-    return {}
+    return care_sheet_items(pet, days)
 
 
 def draft_care_sheet(pet, days: int = 14) -> dict:
