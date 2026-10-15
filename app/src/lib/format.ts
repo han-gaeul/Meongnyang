@@ -27,4 +27,15 @@ export const KIND_LABEL = { walk: '산책', share: '나눔' } as const;
 export const GATHERING_STATUS_LABEL = { open: '모집 중', closed: '마감', cancelled: '취소됨' } as const;
 export const LEVEL_LABEL = { none: '', neighbor: '이웃', regular: '단골 이웃' } as const;
 
-export const SPECIES_LABEL ={ all: '모두', dog: '강아지', cat: '고양이' } as const;
+export const SPECIES_LABEL = { all: '모두', dog: '강아지', cat: '고양이' } as const;
+
+export const FAVOR_KIND_LABEL = { meal: '밥 주기', walk: '산책', hospital: '병원 동행', etc: '기타' } as const;
+export const FAVOR_STATUS_LABEL = { open: '찾는 중', matched: '약속됨', done: '완료', cancelled: '취소됨' } as const;
+export const SIZE_LABEL = { S: '소형', M: '중형', L: '대형', '': '' } as const;
+
+/** 30 → "30분", 90 → "1시간 30분" */
+export function minutesLabel(min: number): string {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return [h ? `${h}시간` : '', m ? `${m}분` : ''].filter(Boolean).join(' ');
+}

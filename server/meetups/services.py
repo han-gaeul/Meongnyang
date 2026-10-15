@@ -99,12 +99,11 @@ def confirm(scanner, qr: str, lat: float, lng: float) -> ConfirmResult:
 
 # ---- 이웃 단계 ----
 
-def level_for(count: int) -> str:
-    if count >= settings.REGULAR_NEIGHBOR_MEETS:
-        return "regular"  # 단골 이웃
-    if count >= settings.NEIGHBOR_MEETS:
-        return "neighbor"  # 이웃
-    return "none"
+def level_for(count: int, completed_favors: int = 0) -> str:
+    """이웃 단계. 단골 이웃은 만남 횟수에 더해 짧은 부탁을 한 번 함께 마쳐야 한다."""
+    from favors.services import level_of
+
+    return level_of(count, completed_favors)
 
 
 def meet_count(user_id: int, other_id: int) -> int:
@@ -119,8 +118,13 @@ def neighbors_of(user) -> list[dict]:
         .values("user_a", "user_b")
         .annotate(count=Count("id"), last_met_on=Max("met_on"))
     )
+    from favors.services import completed_pairs
+
+    done = completed_pairs(user.id)
     stats: dict[int, dict] = {}
     for r in rows:
         other = r["user_b"] if r["user_a"] == user.id else r["user_a"]
-        stats[other] = {"count": r["count"], "last_met_on": r["last_met_on"]}
-    return [{"user_id": k, **v, "level": level_for(v["count"])} for k, v in stats.items()]
+        stats[other] = {"count": r["count"], "last_met_on": r["last_met_on"], "favors_done": done.get(other, 0)}
+    return [
+        {"user_id": k, **v, "level": level_for(v["count"], v["favors_done"])} for k, v in stats.items()
+    ]

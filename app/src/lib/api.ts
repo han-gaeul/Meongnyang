@@ -207,7 +207,84 @@ export type Neighbor = {
   nickname: string;
   meet_count: number;
   last_met_on: string;
+  favors_done: number;
   level: 'none' | 'neighbor' | 'regular';
+};
+
+export type CareSheetInput = {
+  meal: { times_per_day: number | null; amount: string; food: string };
+  meds: { name: string; dose: string; time: string }[];
+  condition: string;
+  walk: { minutes: number | null; per_week: number | null };
+  notes: string;
+  caution: string;
+};
+
+export type CareSheet = CareSheetInput & {
+  basic: {
+    name: string;
+    species: string;
+    breed: string;
+    sex: string;
+    age: number | null;
+    size: string;
+    weight_kg: number | null;
+    neutered: boolean | null;
+    vaccinated: boolean | null;
+    traits: string[];
+  };
+};
+
+export type CareSheetDraft = CareSheet & { source: { days: number; from_journal: string[] } };
+
+export type FavorApplication = {
+  id: number;
+  user: Author;
+  message: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+  agreed_at: string;
+  created_at: string;
+  decided_at: string | null;
+};
+
+export type Favor = {
+  id: number;
+  requester: Author;
+  pet: PetBrief;
+  kind: 'meal' | 'walk' | 'hospital' | 'etc';
+  visit_home: boolean;
+  region_name: string;
+  title: string;
+  content: string;
+  place_name: string;
+  starts_at: string;
+  duration_minutes: number;
+  care_summary: {
+    species: string | null;
+    breed: string;
+    size: string;
+    age: number | null;
+    traits: string[];
+    walk: { minutes: number | null; per_week: number | null };
+  };
+  /** 보호자와 맡은 이웃에게만 */
+  care_sheet: CareSheet | null;
+  status: 'open' | 'matched' | 'done' | 'cancelled';
+  helper: Author | null;
+  matched_at: string | null;
+  /** 맡은 이웃이 '다 했어요'를 누른 시각 */
+  helper_reported_at: string | null;
+  /** 보호자가 지금 '확인했어요'를 누를 수 있는지 */
+  can_confirm: boolean;
+  completed_at: string | null;
+  is_requester: boolean;
+  my_application: FavorApplication | null;
+  can_help: boolean;
+  cannot_help_reason: string;
+  pending_count: number | null;
+  thanks: { message: string; created_at: string } | null;
+  is_hidden: boolean;
+  created_at: string;
 };
 
 export type ReportReason ='money' | 'spam' | 'abuse' | 'danger' | 'other';

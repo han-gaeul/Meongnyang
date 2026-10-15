@@ -58,6 +58,29 @@ export function Button({
   );
 }
 
+/** 명시적 동의 체크. 화면을 연 것만으로는 동의로 치지 않는다. */
+export function Agree({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked }}
+      onPress={() => onChange(!checked)}
+      style={styles.agree}>
+      <View
+        style={[
+          styles.box,
+          { borderColor: checked ? theme.primary : theme.border, backgroundColor: checked ? theme.primary : 'transparent' },
+        ]}>
+        {checked && <ThemedText style={{ color: theme.onPrimary, fontSize: 14, lineHeight: 18 }}>✓</ThemedText>}
+      </View>
+      <ThemedText type="small" style={styles.flex}>
+        {label}
+      </ThemedText>
+    </Pressable>
+  );
+}
+
 export function ErrorText({ message }: { message: string | null }) {
   const theme = useTheme();
   if (!message) return null;
@@ -70,6 +93,9 @@ export function ErrorText({ message }: { message: string | null }) {
 
 const styles = StyleSheet.create({
   field: { gap: Spacing.one },
+  flex: { flex: 1 },
+  agree: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingVertical: Spacing.one },
+  box: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   input: {
     borderWidth: 1,
     borderRadius: 10,

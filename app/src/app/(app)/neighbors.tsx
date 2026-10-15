@@ -33,7 +33,7 @@ export default function Neighbors() {
         ListHeaderComponent={
           <View style={styles.header}>
             <ThemedText type="small" themeColor="textSecondary">
-              QR로 만남을 인증한 이웃이에요. 1번 만나면 짧은 부탁, 3번 만나면 긴 부탁과 집 방문 부탁을 서로 할 수 있어요.
+              QR로 만남을 인증한 이웃이에요. 1번 만나면 짧은 부탁을 서로 할 수 있고, 3번 만나고 짧은 부탁을 한 번 함께 마치면 단골 이웃이 되어 집 방문 부탁도 할 수 있어요.
             </ThemedText>
             <ErrorText message={error} />
           </View>
@@ -50,7 +50,7 @@ export default function Neighbors() {
             <View style={styles.flex}>
               <ThemedText type="smallBold">{item.nickname}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                {item.meet_count}번 만남 · 마지막 {item.last_met_on.replace(/-/g, '.')}
+                {item.meet_count}번 만남{item.favors_done ? ` · 부탁 ${item.favors_done}번` : ''} · 마지막 {item.last_met_on.replace(/-/g, '.')}
               </ThemedText>
             </View>
             <ThemedView type="backgroundElement" style={styles.badge}>

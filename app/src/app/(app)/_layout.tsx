@@ -8,6 +8,8 @@ export default function AppLayout() {
       <Stack.Screen name="posts/new" options={{ title: '글쓰기', presentation: 'modal' }} />
       <Stack.Screen name="gatherings/[id]" options={{ title: '' }} />
       <Stack.Screen name="gatherings/new" options={{ title: '모임 열기', presentation: 'modal' }} />
+      <Stack.Screen name="favors/[id]" options={{ title: '' }} />
+      <Stack.Screen name="favors/new" options={{ title: '부탁하기', presentation: 'modal' }} />
       <Stack.Screen name="meetup" options={{ title: '만남 인증' }} />
       <Stack.Screen name="neighbors" options={{ title: '내 이웃' }} />
       <Stack.Screen name="pets/new" options={{ title: '반려동물 등록', presentation: 'modal' }} />
