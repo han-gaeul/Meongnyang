@@ -66,9 +66,9 @@ brew install cloudflared
 
 ### 카카오맵 키
 
-1. developers.kakao.com → 내 애플리케이션 → 앱 만들기 → **JavaScript 키** 복사
-2. 앱 설정 → 플랫폼 → Web → 사이트 도메인에 `https://meongnyang.app` 등록 (`EXPO_PUBLIC_KAKAO_MAP_ORIGIN`과 같아야 함)
-3. 제품 설정 → 카카오맵 사용 설정 ON
+1. developers.kakao.com → 앱 관리 → 앱 생성 (앱 이름·회사명·카테고리만)
+2. [앱] → [플랫폼 키] → [JavaScript 키] 복사, 같은 화면의 **JavaScript SDK 도메인**에 `https://meongnyang.app` 등록 (`EXPO_PUBLIC_KAKAO_MAP_ORIGIN`과 같아야 함)
+3. [카카오맵] → [사용 설정] → 상태 ON (무료 쿼터는 계정에서 처음 활성화한 앱에만)
 4. `app/.env`에 `EXPO_PUBLIC_KAKAO_JS_KEY=복사한 키` 추가 (`dev-phone.sh`는 이 줄을 건드리지 않음)
 
 키가 없으면 지도 없이 거리순 목록만 보인다.
