@@ -287,7 +287,75 @@ export type Favor = {
   created_at: string;
 };
 
-export type ReportReason ='money' | 'spam' | 'abuse' | 'danger' | 'other';
+export type PlaceCategory =
+  | 'cafe' | 'restaurant' | 'stay' | 'attraction' | 'park' | 'hospital' | 'pharmacy' | 'grooming' | 'hotel' | 'etc';
+export type PlaceSpace = 'indoor' | 'outdoor' | 'separate';
+
+export type PlaceConditions = {
+  large_ok: boolean | null;
+  space: PlaceSpace | '';
+  floor_ok: boolean | null;
+  extra_fee: boolean | null;
+  review_count: number;
+  large_reviews: number;
+  max_weight_admitted: number | null;
+  last_checked: string | null;
+  differs_from_policy: boolean;
+};
+
+export type Place = {
+  id: number;
+  name: string;
+  category: PlaceCategory;
+  address: string;
+  lat: number;
+  lng: number;
+  phone: string;
+  region_name: string;
+  status: 'pending' | 'approved' | 'closed';
+  source: string;
+  naver_booking_url: string;
+  naver_place_url: string;
+  is_24h: boolean;
+  hours: string;
+  sizes_allowed: ('S' | 'M' | 'L')[];
+  max_weight_kg: number | null;
+  space: PlaceSpace | '';
+  floor_ok: boolean | null;
+  max_pets: number | null;
+  restricted_breeds: string;
+  fee_per_pet: number | null;
+  cats_ok: boolean | null;
+  amenities: string[];
+  policy_checked_at: string | null;
+  distance_m: number | null;
+  conditions: PlaceConditions;
+  /** ?pet= 으로 고른 반려동물 기준 */
+  fit: 'yes' | 'no' | 'unknown';
+  kakao: { view: string; directions: string };
+  is_mine: boolean;
+};
+
+export type PlaceReview = {
+  id: number;
+  user: Author;
+  pet_species: 'dog' | 'cat';
+  pet_size: 'S' | 'M' | 'L' | '';
+  pet_weight_kg: string | null;
+  visited_on: string;
+  admitted: boolean;
+  space: PlaceSpace | '';
+  floor_ok: boolean | null;
+  extra_fee: boolean | null;
+  comment: string;
+  verified_visit: boolean;
+  images: ImageInfo[];
+  is_mine: boolean;
+  is_hidden: boolean;
+  created_at: string;
+};
+
+export type ReportReason = 'money' | 'spam' | 'abuse' | 'danger' | 'other';
 
 /** 기기 사진을 서버에 올리고 id를 받는다. (서버가 JPEG 변환·위치정보 제거) */
 export async function uploadImage(asset: { uri: string; mimeType?: string | null; fileName?: string | null }) {
