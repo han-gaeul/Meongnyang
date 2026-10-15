@@ -7,7 +7,7 @@
 # 하는 일
 #   1. Django: migrate 후 8000 포트로 실행
 #   2. cloudflared 터널 2개: API(8000), Metro(8081) — 주소는 매번 바뀜
-#   3. app/.env 의 EXPO_PUBLIC_API_URL 을 새 API 주소로 갱신
+#   3. app/.env 의 EXPO_PUBLIC_API_URL 을 새 API 주소로 갱신 (다른 값은 유지)
 #   4. Expo 실행 (Metro 터널 주소로 QR 생성)
 # Ctrl+C 한 번이면 전부 같이 종료된다.
 
@@ -35,7 +35,16 @@ need npx "Node.js를 설치해 주세요."
 [ -f "$ROOT/server/.venv/bin/activate" ] || {
   echo "✗ server/.venv 가 없어요. README의 '서버 실행'을 먼저 해 주세요."; exit 1;
 }
-[ -d "$ROOT/app/node_modules" ] || { echo "▶ app 패키지 설치"; (cd "$ROOT/app" && npm install); }
+# 패키지가 없거나 package-lock.json이 바뀌었으면(새 패키지 추가) 설치
+if [ ! -f "$ROOT/app/node_modules/.package-lock.json" ] || [ "$ROOT/app/package-lock.json" -nt "$ROOT/app/node_modules/.package-lock.json" ]; then
+  echo "▶ app 패키지 설치"
+  (cd "$ROOT/app" && npm install)
+fi
+# 서버 패키지도 requirements.txt가 바뀌었으면 설치
+if [ "$ROOT/server/requirements.txt" -nt "$ROOT/server/.venv/.installed" ]; then
+  echo "▶ server 패키지 설치"
+  (cd "$ROOT/server" && .venv/bin/pip install -q -r requirements.txt && touch .venv/.installed)
+fi
 
 # 이전 실행에서 남은 프로세스 정리
 pkill -f "cloudflared tunnel --url http://localhost:8000" 2>/dev/null || true
@@ -92,8 +101,12 @@ for _ in $(seq 1 40); do
 done
 [ "${code:-}" = "200" ] || echo "⚠ API가 아직 응답하지 않아요 (마지막 응답: ${code:-없음}). $LOG_DIR/django.log 를 확인해 주세요."
 
-# 3. 앱 설정
-echo "EXPO_PUBLIC_API_URL=$API_URL" >"$ROOT/app/.env"
+# 3. 앱 설정: API 주소 줄만 바꾸고 나머지(카카오 키 등)는 그대로 둔다
+ENV_FILE="$ROOT/app/.env"
+touch "$ENV_FILE"
+grep -v '^EXPO_PUBLIC_API_URL=' "$ENV_FILE" >"$ENV_FILE.tmp" || true
+echo "EXPO_PUBLIC_API_URL=$API_URL" >>"$ENV_FILE.tmp"
+mv "$ENV_FILE.tmp" "$ENV_FILE"
 
 echo
 echo "  API   : $API_URL   (아이폰 사파리에서 $API_URL/api/docs/ 로 확인 가능)"

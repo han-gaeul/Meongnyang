@@ -39,3 +39,44 @@ export function minutesLabel(min: number): string {
   const m = min % 60;
   return [h ? `${h}시간` : '', m ? `${m}분` : ''].filter(Boolean).join(' ');
 }
+
+export const PLACE_CATEGORY_LABEL = {
+  cafe: '카페',
+  restaurant: '식당',
+  stay: '숙소',
+  attraction: '관광지',
+  park: '공원·운동장',
+  hospital: '동물병원',
+  pharmacy: '동물약국',
+  grooming: '미용',
+  hotel: '위탁·호텔',
+  etc: '기타',
+} as const;
+
+export const SPACE_LABEL = { indoor: '실내 OK', outdoor: '테라스·야외만', separate: '전용 공간', '': '' } as const;
+
+export const AMENITY_LABEL: Record<string, string> = {
+  water: '물그릇',
+  pet_menu: '펫 메뉴',
+  parking: '주차',
+  playground: '운동장',
+  yard: '개별 마당',
+  shower: '펫 샤워장',
+  bed: '펫 침대·배변패드',
+};
+
+/** 350 → "350m", 1530 → "1.5km" */
+export function distanceLabel(m: number | null): string {
+  if (m === null) return '';
+  return m < 1000 ? `${m}m` : `${(m / 1000).toFixed(1)}km`;
+}
+
+/** "오늘", "3일 전", "2달 전" */
+export function daysAgo(iso: string | null, now: Date = new Date()): string {
+  if (!iso) return '';
+  const days = Math.floor((now.getTime() - new Date(iso).getTime()) / 86400000);
+  if (days <= 0) return '오늘';
+  if (days < 30) return `${days}일 전`;
+  if (days < 365) return `${Math.floor(days / 30)}달 전`;
+  return `${Math.floor(days / 365)}년 전`;
+}

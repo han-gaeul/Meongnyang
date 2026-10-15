@@ -45,6 +45,41 @@ export function Chips<T extends string>({
   );
 }
 
+/** 여러 개를 켜고 끄는 칩 (필터용) */
+export function ToggleChips<T extends string>({
+  values,
+  options,
+  onChange,
+}: {
+  values: T[];
+  options: { value: T; label: string }[];
+  onChange: (v: T[]) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll} contentContainerStyle={styles.row}>
+      {options.map((o) => {
+        const on = values.includes(o.value);
+        return (
+          <Pressable
+            key={o.value}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: on }}
+            onPress={() => onChange(on ? values.filter((v) => v !== o.value) : [...values, o.value])}
+            style={[
+              styles.chip,
+              { borderColor: on ? theme.primary : theme.border, backgroundColor: on ? theme.primary : 'transparent' },
+            ]}>
+            <ThemedText type="small" style={{ color: on ? theme.onPrimary : theme.text }}>
+              {o.label}
+            </ThemedText>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
 const styles = StyleSheet.create({
   // 세로로 남는 공간을 차지하지 않도록 (flex 부모 안에서 늘어나는 문제 방지)
   scroll: { flexGrow: 0 },
