@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     "favors",
     "places",
     "journal",
+    "notifications",
+    "inbox",
 ]
 
 MIDDLEWARE = [
@@ -118,6 +120,9 @@ if AWS_STORAGE_BUCKET_NAME:
 # 서로 다른 사람의 신고가 이 수에 도달하면 자동 숨김
 REPORT_HIDE_THRESHOLD = env.int("REPORT_HIDE_THRESHOLD", default=3)
 
+# 푸시: 운영에서만 켠다 (Expo 푸시 서버로 전송)
+PUSH_ENABLED = env.bool("PUSH_ENABLED", default=False)
+
 # 만남 인증: QR 유효 시간(초), 두 기기 사이 허용 거리(m)
 MEETUP_TOKEN_TTL = 180
 MEETUP_MAX_DISTANCE_M = 200
@@ -135,7 +140,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "common.pagination.DefaultCursorPagination",
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
-    "DEFAULT_THROTTLE_RATES": {"auth": "20/min", "verify": "10/hour", "upload": "60/hour", "meetup": "60/hour"},
+    "DEFAULT_THROTTLE_RATES": {"auth": "20/min", "verify": "10/hour", "upload": "60/hour", "meetup": "60/hour", "message": "120/hour"},
 }
 
 SIMPLE_JWT = {

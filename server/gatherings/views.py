@@ -15,6 +15,9 @@ from common.visibility import visible_to
 from moderation.serializers import ReportCreateSerializer, ReportResultSerializer
 from moderation.services import report_content
 
+from notifications.models import Notification as N
+from notifications.services import notify
+
 from .models import Gathering, Participation
 from .serializers import ApplySerializer, GatheringSerializer, ParticipationSerializer
 
@@ -127,6 +130,8 @@ class GatheringViewSet(viewsets.ModelViewSet):
             defaults={"pet": s.validated_data.get("pet"), "message": s.validated_data["message"],
                       "status": Participation.Status.PENDING, "decided_at": None},
         )
+        notify(gathering.host, N.Kind.GATHERING_APPLIED, f"{user.nickname}님이 모임에 신청했어요",
+               gathering.title, path=f"/gatherings/{gathering.id}")
         return Response(self.get_serializer(self._fresh(gathering.pk)).data)
 
     @extend_schema(request=None, responses={200: GatheringSerializer})
@@ -181,6 +186,10 @@ class GatheringViewSet(viewsets.ModelViewSet):
             p.decided_at = timezone.now()
             p.save(update_fields=["status", "decided_at"])
             g.refresh_status()
+        accepted = p.status == Participation.Status.ACCEPTED
+        notify(p.user, N.Kind.GATHERING_DECIDED,
+               "모임 참여가 확정됐어요" if accepted else "이번 모임에는 함께하지 못하게 됐어요",
+               g.title, path=f"/gatherings/{g.id}")
         return Response(ParticipationSerializer(p).data)
 
     @extend_schema(request=ReportCreateSerializer, responses={200: ReportResultSerializer})
