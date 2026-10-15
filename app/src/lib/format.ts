@@ -80,3 +80,20 @@ export function daysAgo(iso: string | null, now: Date = new Date()): string {
   if (days < 365) return `${Math.floor(days / 30)}달 전`;
   return `${Math.floor(days / 365)}년 전`;
 }
+
+export const JOURNAL_KIND_LABEL = { daily: '일기', walk: '산책', health: '건강' } as const;
+export const VITALITY_LABEL = ['', '많이 처져요', '조금 처져요', '보통', '활발해요', '아주 활발해요'] as const;
+
+/** 로컬 날짜 → "2026-10-15" */
+export function isoDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** 초 → "1:05:09" 또는 "12:03" */
+export function clock(sec: number): string {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  const mm = String(m).padStart(h ? 2 : 1, '0');
+  return h ? `${h}:${mm}:${String(s).padStart(2, '0')}` : `${mm}:${String(s).padStart(2, '0')}`;
+}
