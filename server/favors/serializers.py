@@ -115,6 +115,7 @@ class FavorSerializer(serializers.ModelSerializer):
     cannot_help_reason = serializers.SerializerMethodField()
     pending_count = serializers.SerializerMethodField()
     thanks = FavorThanksSerializer(read_only=True, allow_null=True)
+    can_confirm = serializers.SerializerMethodField()
 
     class Meta:
         model = Favor
@@ -138,6 +139,8 @@ class FavorSerializer(serializers.ModelSerializer):
             "status",
             "helper",
             "matched_at",
+            "helper_reported_at",
+            "can_confirm",
             "completed_at",
             "is_requester",
             "my_application",
@@ -149,7 +152,7 @@ class FavorSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = [
-            "id", "region_name", "status", "matched_at", "completed_at", "is_hidden", "created_at",
+            "id", "region_name", "status", "matched_at", "helper_reported_at", "completed_at", "is_hidden", "created_at",
         ]
 
     def _user(self):
@@ -190,6 +193,10 @@ class FavorSerializer(serializers.ModelSerializer):
         if obj.requester_id == self._user().id:
             return ""
         return self._eligibility(obj).reason
+
+    def get_can_confirm(self, obj) -> bool:
+        """보호자가 지금 '확인했어요'(완료)를 누를 수 있는가"""
+        return obj.requester_id == self._user().id and services.can_confirm(obj)
 
     def get_pending_count(self, obj) -> int | None:
         """보호자에게만: 대기 중인 신청 수"""

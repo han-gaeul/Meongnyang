@@ -149,7 +149,8 @@ export default function FavorDetail() {
             </ThemedText>
             {f.is_requester && f.status === 'matched' && (
               <ThemedText type="small" themeColor="textSecondary">
-                {f.visit_home ? '집 주소와 출입 방법을 맡은 이웃에게 따로 알려 주세요. ' : ''}끝나면 아래 &apos;잘 마쳤어요&apos;를 눌러 주세요.
+                {f.visit_home ? '집 주소와 출입 방법을 맡은 이웃에게 따로 알려 주세요. ' : ''}
+                {f.helper_reported_at ? '' : '끝나면 이웃이 \'다 했어요\'로 알려 드려요.'}
               </ThemedText>
             )}
           </ThemedView>
@@ -197,21 +198,51 @@ export default function FavorDetail() {
           </View>
         )}
 
+        {/* 보호자: 이웃이 다 했다고 알리면 확인 */}
         {f.is_requester && f.status === 'matched' && (
           <View style={styles.section}>
+            {f.helper_reported_at && (
+              <ThemedText type="smallBold">✅ {f.helper?.nickname}님이 다 했다고 알렸어요.</ThemedText>
+            )}
             <Button
-              title="잘 마쳤어요"
-              disabled={busy || !started}
+              title="확인했어요"
+              disabled={busy || !f.can_confirm}
               onPress={() =>
                 confirm('부탁 완료', `${f.helper?.nickname ?? '이웃'}님이 부탁을 잘 마쳤나요?`, '완료', () =>
                   api(`/favors/${id}/complete`, { method: 'POST' }),
                 )
               }
             />
-            {!started && (
+            {!f.can_confirm && (
               <ThemedText type="small" themeColor="textSecondary">
-                부탁 시간이 되면 누를 수 있어요.
+                이웃이 &apos;다 했어요&apos;를 누르거나 약속 시간이 끝나면 확인할 수 있어요.
               </ThemedText>
+            )}
+          </View>
+        )}
+
+        {/* 맡은 이웃: 다 했다고 알리기 */}
+        {iAmHelper && f.status === 'matched' && (
+          <View style={styles.section}>
+            {f.helper_reported_at ? (
+              <ThemedText type="smallBold">보호자에게 다 했다고 알렸어요. 보호자가 확인하면 완료돼요.</ThemedText>
+            ) : (
+              <>
+                <Button
+                  title="다 했어요"
+                  disabled={busy || !started}
+                  onPress={() =>
+                    confirm('부탁 마침', `${f.pet.name}의 부탁을 다 마쳤다고 보호자에게 알릴까요?`, '알리기', () =>
+                      api(`/favors/${id}/finish`, { method: 'POST' }),
+                    )
+                  }
+                />
+                {!started && (
+                  <ThemedText type="small" themeColor="textSecondary">
+                    부탁 시간이 되면 누를 수 있어요.
+                  </ThemedText>
+                )}
+              </>
             )}
           </View>
         )}
@@ -285,7 +316,7 @@ export default function FavorDetail() {
               {
                 {
                   pending: '신청했어요. 보호자가 확인하면 알려드려요.',
-                  accepted: f.status === 'done' ? '잘 마쳤어요. 고마워요!' : '약속이 잡혔어요. 돌봄 시트를 꼭 확인해 주세요.',
+                  accepted: f.status === 'done' ? '부탁을 잘 마쳤어요. 고마워요!' : '약속이 잡혔어요. 돌봄 시트를 꼭 확인해 주세요.',
                   rejected: '보호자가 다른 이웃과 약속했어요.',
                   cancelled: '',
                 }[mine.status]

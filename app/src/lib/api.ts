@@ -272,6 +272,10 @@ export type Favor = {
   status: 'open' | 'matched' | 'done' | 'cancelled';
   helper: Author | null;
   matched_at: string | null;
+  /** 맡은 이웃이 '다 했어요'를 누른 시각 */
+  helper_reported_at: string | null;
+  /** 보호자가 지금 '확인했어요'를 누를 수 있는지 */
+  can_confirm: boolean;
   completed_at: string | null;
   is_requester: boolean;
   my_application: FavorApplication | null;

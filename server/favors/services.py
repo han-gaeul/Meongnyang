@@ -70,6 +70,23 @@ def can_help(user, favor: Favor) -> Eligibility:
     return Eligibility(True)
 
 
+def can_confirm(favor: Favor) -> bool:
+    """보호자의 완료 확인 조건.
+
+    맡은 이웃이 '다 했어요'를 눌렀거나, 이웃이 깜빡해도 부탁이 멈추지 않도록
+    약속한 시간이 끝났으면 보호자가 확인할 수 있다.
+    """
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    if favor.status != Favor.Status.MATCHED:
+        return False
+    if favor.helper_reported_at:
+        return True
+    return timezone.now() >= favor.starts_at + timedelta(minutes=favor.duration_minutes)
+
+
 # ---- 돌봄 시트 ----
 
 def _journal_items(pet, days: int) -> dict:

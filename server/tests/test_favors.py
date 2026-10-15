@@ -128,10 +128,22 @@ def test_full_flow_apply_accept_complete_thank(pair, member_api):
     assert neighbor.get(f"/api/v1/favors/{fid}").data["care_sheet"]["caution"] == "자전거를 보면 짖어요"
     assert other.get(f"/api/v1/favors/{fid}").data["care_sheet"] is None
 
-    # 시간이 되기 전엔 완료 불가, 맡은 이웃은 완료 처리 불가
+    # 시간 전에는 이웃도 '다 했어요'를 못 누르고, 보호자도 확인 불가
+    assert neighbor.post(f"/api/v1/favors/{fid}/finish").status_code == 400
     assert owner.post(f"/api/v1/favors/{fid}/complete").status_code == 400
     Favor.objects.filter(pk=fid).update(starts_at=timezone.now() - timedelta(minutes=5))
+    # 시간이 됐어도 이웃이 알리기 전(약속 30분 안)엔 보호자 확인 불가
+    assert owner.get(f"/api/v1/favors/{fid}").data["can_confirm"] is False
+    assert owner.post(f"/api/v1/favors/{fid}/complete").status_code == 400
+    # 보호자는 '다 했어요'를 누를 수 없고, 맡은 이웃은 완료 확인을 할 수 없다
+    assert owner.post(f"/api/v1/favors/{fid}/finish").status_code == 400
     assert neighbor.post(f"/api/v1/favors/{fid}/complete").status_code == 403
+    assert other.post(f"/api/v1/favors/{fid}/finish").status_code == 400
+
+    res = neighbor.post(f"/api/v1/favors/{fid}/finish")
+    assert res.status_code == 200 and res.data["helper_reported_at"]
+    assert res.data["can_confirm"] is False  # 이웃에겐 확인 버튼 없음
+    assert owner.get(f"/api/v1/favors/{fid}").data["can_confirm"] is True
     assert owner.post(f"/api/v1/favors/{fid}/thank", {"message": "고마워요"}, format="json").status_code == 400
     assert owner.post(f"/api/v1/favors/{fid}/complete").data["status"] == "done"
 
@@ -215,3 +227,15 @@ def test_unverified_cannot_create(auth_api):
     with mock.patch("favors.views.FavorViewSet.create") as create:
         assert guest.post("/api/v1/favors", {}, format="json").status_code == 403
         create.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_requester_can_confirm_after_end_even_without_report(pair):
+    """이웃이 '다 했어요'를 깜빡해도 약속 시간이 끝나면 보호자가 완료할 수 있다"""
+    owner, neighbor, _ = pair
+    fid = favor(owner).data["id"]
+    neighbor.post(f"/api/v1/favors/{fid}/apply", {"agree_terms": True}, format="json")
+    aid = owner.get(f"/api/v1/favors/{fid}/applications").data[0]["id"]
+    owner.post(f"/api/v1/favors/{fid}/applications/{aid}/accept")
+    Favor.objects.filter(pk=fid).update(starts_at=timezone.now() - timedelta(minutes=31))
+    assert owner.post(f"/api/v1/favors/{fid}/complete").data["status"] == "done"

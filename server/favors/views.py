@@ -51,7 +51,7 @@ class FavorViewSet(viewsets.ModelViewSet):
     owner_field = "requester"
 
     def get_permissions(self):
-        if self.action in {"create", "apply", "withdraw", "report"}:
+        if self.action in {"create", "apply", "withdraw", "report", "finish"}:
             return [IsVerifiedMember()]
         if self.action in {"update", "partial_update", "destroy", "applications", "decide", "complete", "thank"}:
             return [IsOwnerOrReadOnly()]
@@ -158,8 +158,9 @@ class FavorViewSet(viewsets.ModelViewSet):
             if f.helper_id == request.user.id and f.status == Favor.Status.MATCHED:
                 f.helper = None
                 f.matched_at = None
+                f.helper_reported_at = None
                 f.status = Favor.Status.OPEN
-                f.save(update_fields=["helper", "matched_at", "status", "updated_at"])
+                f.save(update_fields=["helper", "matched_at", "helper_reported_at", "status", "updated_at"])
         return self._ok(favor)
 
     # ---- 부탁한 쪽 ----
@@ -209,13 +210,27 @@ class FavorViewSet(viewsets.ModelViewSet):
 
     @extend_schema(request=None, responses={200: FavorSerializer})
     @action(detail=True, methods=["post"])
+    def finish(self, request, pk=None):
+        """맡은 이웃: '다 했어요'. 보호자가 확인하면 완료된다."""
+        favor = self.get_object()
+        if favor.helper_id != request.user.id or favor.status != Favor.Status.MATCHED:
+            return Response({"detail": "내가 맡은 진행 중인 부탁만 알릴 수 있어요."}, status=400)
+        if favor.starts_at > timezone.now():
+            return Response({"detail": "부탁 시간이 된 뒤에 알릴 수 있어요."}, status=400)
+        if not favor.helper_reported_at:
+            favor.helper_reported_at = timezone.now()
+            favor.save(update_fields=["helper_reported_at", "updated_at"])
+        return self._ok(favor)
+
+    @extend_schema(request=None, responses={200: FavorSerializer})
+    @action(detail=True, methods=["post"])
     def complete(self, request, pk=None):
-        """보호자가 '잘 마쳤어요'를 눌러야 완료로 기록된다."""
+        """보호자: '확인했어요'. 이웃이 다 했다고 알렸거나 약속 시간이 끝난 뒤에 완료로 기록된다."""
         favor = self.get_object()
         if favor.status != Favor.Status.MATCHED:
             return Response({"detail": "약속이 잡힌 부탁만 완료할 수 있어요."}, status=400)
-        if favor.starts_at > timezone.now():
-            return Response({"detail": "부탁 시간이 지난 뒤에 완료할 수 있어요."}, status=400)
+        if not services.can_confirm(favor):
+            return Response({"detail": "이웃이 '다 했어요'를 누르거나 약속 시간이 끝나면 확인할 수 있어요."}, status=400)
         favor.status = Favor.Status.DONE
         favor.completed_at = timezone.now()
         favor.save(update_fields=["status", "completed_at", "updated_at"])

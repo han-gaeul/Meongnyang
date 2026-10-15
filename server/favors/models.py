@@ -43,6 +43,8 @@ class Favor(Moderated):
     # 책임 범위·사고 처리 원칙 동의 (명시적 확인 기록)
     requester_agreed_at = models.DateTimeField()
     matched_at = models.DateTimeField(null=True, blank=True)
+    # 맡은 이웃이 '다 했어요'를 누른 시각 → 보호자가 '확인했어요'로 완료
+    helper_reported_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
