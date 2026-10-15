@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "meetups",
     "favors",
     "places",
+    "journal",
 ]
 
 MIDDLEWARE = [
@@ -156,6 +157,7 @@ SPECTACULAR_SETTINGS = {
         "PlaceCategoryEnum": "places.models.Place.Category",
         "PlaceSpaceEnum": "places.models.Place.Space",
         "PlaceStatusEnum": "places.models.Place.Status",
+        "JournalKindEnum": "journal.models.JournalEntry.Kind",
         "GatheringKindEnum": "gatherings.models.Gathering.Kind",
         "GatheringStatusEnum": "gatherings.models.Gathering.Status",
         "ApplicationStatusEnum": "gatherings.models.Participation.Status",
