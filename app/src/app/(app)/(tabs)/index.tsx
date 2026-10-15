@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chips } from '@/components/chips';
 import { ErrorText } from '@/components/form';
+import { InboxButtons } from '@/components/inbox-buttons';
 import { PostCard } from '@/components/post-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -79,9 +80,12 @@ export default function Home() {
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex} edges={['top']}>
         <View style={styles.header}>
-          <ThemedText type="subtitle" style={styles.title}>
-            {me?.region_name || '우리 동네'}
-          </ThemedText>
+          <View style={styles.titleRow}>
+            <ThemedText type="subtitle" style={styles.title}>
+              {me?.region_name || '우리 동네'}
+            </ThemedText>
+            <InboxButtons />
+          </View>
           <TextInput
             value={query}
             onChangeText={setQuery}
@@ -148,6 +152,7 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   flex: { flex: 1 },
   header: { paddingHorizontal: Spacing.four, paddingTop: Spacing.two, paddingBottom: Spacing.two, gap: Spacing.two },
   title: { fontSize: 24, lineHeight: 32 },

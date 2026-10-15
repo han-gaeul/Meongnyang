@@ -54,6 +54,12 @@
           "cameraPermission": "이웃의 만남 인증 QR을 찍기 위해 카메라를 사용합니다.",
           "recordAudioAndroid": false
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#E07A2E"
+        }
       ]
     ],
     "experiments": {

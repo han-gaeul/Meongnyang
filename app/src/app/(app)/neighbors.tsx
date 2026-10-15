@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { openChat } from '@/lib/chat';
 import { api, type Neighbor } from '@/lib/api';
 import { LEVEL_LABEL } from '@/lib/format';
 
@@ -53,6 +54,9 @@ export default function Neighbors() {
                 {item.meet_count}번 만남{item.favors_done ? ` · 부탁 ${item.favors_done}번` : ''} · 마지막 {item.last_met_on.replace(/-/g, '.')}
               </ThemedText>
             </View>
+            <ThemedText type="linkPrimary" accessibilityRole="button" onPress={() => openChat({ id: item.id, nickname: item.nickname })}>
+              쪽지
+            </ThemedText>
             <ThemedView type="backgroundElement" style={styles.badge}>
               <ThemedText
                 type="smallBold"

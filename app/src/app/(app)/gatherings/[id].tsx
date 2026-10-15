@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useSession } from '@/ctx';
 import { useTheme } from '@/hooks/use-theme';
+import { openChat } from '@/lib/chat';
 import { api, type Gathering, type Page, type Participation, type Pet } from '@/lib/api';
 import { GATHERING_STATUS_LABEL, KIND_LABEL, SPECIES_LABEL, whenLabel } from '@/lib/format';
 import { askReport } from '@/lib/report';
@@ -171,7 +172,12 @@ export default function GatheringDetail() {
                 )}
                 {pending.map((p) => (
                   <ThemedView key={p.id} type="backgroundElement" style={styles.card}>
-                    <ThemedText type="smallBold">{p.user.nickname}</ThemedText>
+                    <View style={styles.between}>
+                      <ThemedText type="smallBold">{p.user.nickname}</ThemedText>
+                      <ThemedText type="linkPrimary" onPress={() => openChat(p.user)}>
+                        쪽지
+                      </ThemedText>
+                    </View>
                     {p.pet && <ThemedText type="small">{petLine(p.pet)}</ThemedText>}
                     {!!p.message && <ThemedText type="small">“{p.message}”</ThemedText>}
                     <View style={styles.row}>
@@ -223,7 +229,10 @@ export default function GatheringDetail() {
                   }
                 </ThemedText>
                 {(mine.status === 'pending' || mine.status === 'accepted') && (
-                  <Button title="참여 취소" variant="secondary" onPress={cancelMine} disabled={busy} />
+                  <>
+                    <Button title="모임장에게 쪽지" variant="secondary" onPress={() => openChat(g.host)} />
+                    <Button title="참여 취소" variant="secondary" onPress={cancelMine} disabled={busy} />
+                  </>
                 )}
               </ThemedView>
             )}
@@ -256,4 +265,5 @@ const styles = StyleSheet.create({
   half: { flex: 1 },
   input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: Spacing.three, paddingVertical: 12, fontSize: 16 },
   headerAction: { paddingHorizontal: Spacing.three },
+  between: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 });
