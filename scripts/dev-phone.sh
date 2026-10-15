@@ -35,7 +35,16 @@ need npx "Node.js를 설치해 주세요."
 [ -f "$ROOT/server/.venv/bin/activate" ] || {
   echo "✗ server/.venv 가 없어요. README의 '서버 실행'을 먼저 해 주세요."; exit 1;
 }
-[ -d "$ROOT/app/node_modules" ] || { echo "▶ app 패키지 설치"; (cd "$ROOT/app" && npm install); }
+# 패키지가 없거나 package-lock.json이 바뀌었으면(새 패키지 추가) 설치
+if [ ! -f "$ROOT/app/node_modules/.package-lock.json" ] || [ "$ROOT/app/package-lock.json" -nt "$ROOT/app/node_modules/.package-lock.json" ]; then
+  echo "▶ app 패키지 설치"
+  (cd "$ROOT/app" && npm install)
+fi
+# 서버 패키지도 requirements.txt가 바뀌었으면 설치
+if [ "$ROOT/server/requirements.txt" -nt "$ROOT/server/.venv/.installed" ]; then
+  echo "▶ server 패키지 설치"
+  (cd "$ROOT/server" && .venv/bin/pip install -q -r requirements.txt && touch .venv/.installed)
+fi
 
 # 이전 실행에서 남은 프로세스 정리
 pkill -f "cloudflared tunnel --url http://localhost:8000" 2>/dev/null || true
