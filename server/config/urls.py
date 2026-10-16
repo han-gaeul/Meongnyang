@@ -2,9 +2,23 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.db import connection
+from django.http import JsonResponse
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+
+def healthz(request):
+    """로드밸런서·컨테이너 헬스체크: DB까지 확인"""
+    try:
+        with connection.cursor() as c:
+            c.execute("SELECT 1")
+    except Exception:  # noqa: BLE001
+        return JsonResponse({"ok": False}, status=503)
+    return JsonResponse({"ok": True})
+
+
 urlpatterns = [
+    path("healthz", healthz),
     path("admin/", admin.site.urls),
     path("api/v1/", include("accounts.urls")),
     path("api/v1/", include("pets.urls")),

@@ -1,0 +1,8 @@
+# DOMAIN(예: meongnyang.duckdns.org)으로 Let's Encrypt 인증서를 자동으로 받는다.
+{$DOMAIN} {
+	encode gzip
+	request_body {
+		max_size 12MB
+	}
+	reverse_proxy api:8000
+}
