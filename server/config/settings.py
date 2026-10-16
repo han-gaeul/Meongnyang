@@ -19,7 +19,8 @@ DEBUG = env("DEBUG")
 # 키는 코드에 두지 않는다. 로컬은 .env, 배포는 환경변수/Secrets Manager.
 SECRET_KEY = env("SECRET_KEY")
 CI_HASH_SECRET = env("CI_HASH_SECRET")
-ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+# 컨테이너 헬스체크(127.0.0.1:8000/healthz)는 항상 허용
+ALLOWED_HOSTS = [*env("ALLOWED_HOSTS"), "127.0.0.1", "localhost"]
 
 IDENTITY_PROVIDER = env("IDENTITY_PROVIDER")
 PET_REGISTRY_PROVIDER = env("PET_REGISTRY_PROVIDER")
