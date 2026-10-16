@@ -2,7 +2,8 @@
 # 아이폰(Expo Go)으로 확인할 때 쓰는 개발 실행 스크립트.
 # 같은 와이파이가 아니어도(LTE, 회사 와이파이) 동작하도록 cloudflared 터널 2개를 연다.
 #
-#   ./scripts/dev-phone.sh
+#   ./scripts/dev-phone.sh                                   내 Mac 서버로
+#   ./scripts/dev-phone.sh --remote https://meongnyang.duckdns.org   실서버로 (Metro 터널만)
 #
 # 하는 일
 #   1. Django: migrate 후 8000 포트로 실행
@@ -14,6 +15,11 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+REMOTE=""
+if [ "${1:-}" = "--remote" ]; then
+  REMOTE="${2:?실서버 주소를 같이 적어 주세요. 예: --remote https://meongnyang.duckdns.org}"
+  REMOTE="${REMOTE%/}"
+fi
 LOG_DIR="$ROOT/.dev-logs"
 mkdir -p "$LOG_DIR"
 
@@ -51,6 +57,7 @@ pkill -f "cloudflared tunnel --url http://localhost:8000" 2>/dev/null || true
 pkill -f "cloudflared tunnel --url http://localhost:8081" 2>/dev/null || true
 pkill -f "manage.py runserver 0.0.0.0:8000" 2>/dev/null || true
 
+if [ -z "$REMOTE" ]; then
 # 1. Django
 echo "▶ 서버 준비 (migrate)"
 (
@@ -68,6 +75,7 @@ echo "▶ 서버 준비 (migrate)"
   exec python manage.py runserver 0.0.0.0:8000
 ) >"$LOG_DIR/django.log" 2>&1 &
 PIDS+=($!)
+fi
 
 # 2. 터널
 start_tunnel() { # $1=포트 $2=로그 이름
@@ -87,15 +95,19 @@ wait_url() { # $1=로그 이름 → 주소 출력
 }
 
 echo "▶ 터널 여는 중 (10~20초)"
-start_tunnel 8000 api
 start_tunnel 8081 metro
-API_URL=$(wait_url api)
+if [ -n "$REMOTE" ]; then
+  API_URL="$REMOTE"
+else
+  start_tunnel 8000 api
+  API_URL=$(wait_url api)
+fi
 METRO_URL=$(wait_url metro)
 
 # 새 터널은 실제로 열리기까지 몇 초 걸린다. API가 응답할 때까지 기다린다.
 echo "▶ API 연결 확인: $API_URL"
 for _ in $(seq 1 40); do
-  code=$(curl -s -o /dev/null -w '%{http_code}' "$API_URL/api/schema/" || true)
+  code=$(curl -s -o /dev/null -w '%{http_code}' "$API_URL/healthz" || true)
   [ "$code" = "200" ] && break
   sleep 1
 done
