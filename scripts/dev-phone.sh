@@ -131,4 +131,5 @@ echo
 
 # 4. Expo (포그라운드)
 cd "$ROOT/app"
-EXPO_PACKAGER_PROXY_URL="$METRO_URL" npx expo start -c
+# expo-dev-client가 설치돼 있어도 Expo Go로 열리게 --go
+EXPO_PACKAGER_PROXY_URL="$METRO_URL" npx expo start -c --go
