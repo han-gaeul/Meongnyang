@@ -385,6 +385,28 @@ export type JournalEntry = {
 
 export type CalendarDay = { date: string; kinds: JournalKind[]; walk_minutes: number; count: number };
 
+export type AppNotification = {
+  id: number;
+  kind: string;
+  title: string;
+  body: string;
+  path: string;
+  read_at: string | null;
+  created_at: string;
+};
+
+export type Message = {
+  id: number;
+  sender: Author;
+  recipient: Author;
+  content: string;
+  read_at: string | null;
+  is_mine: boolean;
+  created_at: string;
+};
+
+export type Thread = { user: Author; last: Message; unread: number };
+
 export type ReportReason = 'money' | 'spam' | 'abuse' | 'danger' | 'other';
 
 /** 기기 사진을 서버에 올리고 id를 받는다. (서버가 JPEG 변환·위치정보 제거) */

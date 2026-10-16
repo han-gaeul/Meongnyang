@@ -19,6 +19,9 @@ from moderation.serializers import ReportCreateSerializer, ReportResultSerialize
 from moderation.services import report_content
 from pets.models import Pet
 
+from notifications.models import Notification as N
+from notifications.services import notify
+
 from . import services
 from .models import Favor, FavorApplication, FavorThanks
 from .serializers import (
@@ -141,6 +144,8 @@ class FavorViewSet(viewsets.ModelViewSet):
                 "decided_at": None,
             },
         )
+        notify(favor.requester, N.Kind.FAVOR_APPLIED, f"{request.user.nickname}님이 부탁을 맡겠대요",
+               favor.title, path=f"/favors/{favor.id}")
         return self._ok(favor)
 
     @extend_schema(request=None, responses={200: FavorSerializer})
@@ -161,6 +166,8 @@ class FavorViewSet(viewsets.ModelViewSet):
                 f.helper_reported_at = None
                 f.status = Favor.Status.OPEN
                 f.save(update_fields=["helper", "matched_at", "helper_reported_at", "status", "updated_at"])
+                notify(f.requester, N.Kind.FAVOR_WITHDRAWN, f"{request.user.nickname}님이 약속을 취소했어요",
+                       f"'{f.title}' 부탁을 맡을 이웃을 다시 찾고 있어요.", path=f"/favors/{f.id}")
         return self._ok(favor)
 
     # ---- 부탁한 쪽 ----
@@ -206,6 +213,9 @@ class FavorViewSet(viewsets.ModelViewSet):
                 a.status = FavorApplication.Status.REJECTED
             a.decided_at = now
             a.save(update_fields=["status", "decided_at"])
+        if decision == "accept":
+            notify(a.user, N.Kind.FAVOR_MATCHED, f"{f.requester.nickname}님이 부탁했어요",
+                   f"'{f.title}' 약속이 잡혔어요. 돌봄 시트를 확인해 주세요.", path=f"/favors/{f.id}")
         return self._ok(favor)
 
     @extend_schema(request=None, responses={200: FavorSerializer})
@@ -220,6 +230,8 @@ class FavorViewSet(viewsets.ModelViewSet):
         if not favor.helper_reported_at:
             favor.helper_reported_at = timezone.now()
             favor.save(update_fields=["helper_reported_at", "updated_at"])
+            notify(favor.requester, N.Kind.FAVOR_REPORTED, f"{request.user.nickname}님이 다 했다고 알렸어요",
+                   "확인하면 부탁이 완료돼요.", path=f"/favors/{favor.id}")
         return self._ok(favor)
 
     @extend_schema(request=None, responses={200: FavorSerializer})
@@ -234,6 +246,9 @@ class FavorViewSet(viewsets.ModelViewSet):
         favor.status = Favor.Status.DONE
         favor.completed_at = timezone.now()
         favor.save(update_fields=["status", "completed_at", "updated_at"])
+        if favor.helper:
+            notify(favor.helper, N.Kind.FAVOR_DONE, "부탁을 잘 마쳤어요",
+                   f"{request.user.nickname}님이 확인했어요. 고마워요!", path=f"/favors/{favor.id}")
         return self._ok(favor)
 
     @extend_schema(request=FavorThanksCreateSerializer, responses={200: FavorSerializer})
@@ -248,6 +263,9 @@ class FavorViewSet(viewsets.ModelViewSet):
         s = FavorThanksCreateSerializer(data=request.data)
         s.is_valid(raise_exception=True)
         FavorThanks.objects.create(favor=favor, message=s.validated_data["message"])
+        if favor.helper:
+            notify(favor.helper, N.Kind.FAVOR_THANKS, f"{request.user.nickname}님의 감사 인사",
+                   s.validated_data["message"][:80], path=f"/favors/{favor.id}")
         return self._ok(favor)
 
     @extend_schema(request=ReportCreateSerializer, responses={200: ReportResultSerializer})

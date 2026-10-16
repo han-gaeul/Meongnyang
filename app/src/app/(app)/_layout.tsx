@@ -1,6 +1,28 @@
-import { Stack } from 'expo-router';
+import * as Notifications from 'expo-notifications';
+import { router, Stack } from 'expo-router';
+import { useEffect } from 'react';
+import { Platform } from 'react-native';
+
+import { pathOfResponse, registerForPush } from '@/lib/push';
+
+/** 로그인한 뒤: 푸시 토큰 등록, 알림을 누르면 해당 화면으로 */
+function usePush() {
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    registerForPush();
+    const last = Notifications.getLastNotificationResponse();
+    const first = last ? pathOfResponse(last) : null;
+    if (first) router.push(first as never);
+    const sub = Notifications.addNotificationResponseReceivedListener((r) => {
+      const path = pathOfResponse(r);
+      if (path) router.push(path as never);
+    });
+    return () => sub.remove();
+  }, []);
+}
 
 export default function AppLayout() {
+  usePush();
   return (
     <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -16,6 +38,9 @@ export default function AppLayout() {
       <Stack.Screen name="journal/[id]" options={{ title: '' }} />
       <Stack.Screen name="journal/new" options={{ title: '', presentation: 'modal' }} />
       <Stack.Screen name="journal/walk" options={{ title: '산책' }} />
+      <Stack.Screen name="notifications" options={{ title: '알림' }} />
+      <Stack.Screen name="messages/index" options={{ title: '쪽지' }} />
+      <Stack.Screen name="messages/[userId]" options={{ title: '' }} />
       <Stack.Screen name="meetup" options={{ title: '만남 인증' }} />
       <Stack.Screen name="neighbors" options={{ title: '내 이웃' }} />
       <Stack.Screen name="pets/new" options={{ title: '반려동물 등록', presentation: 'modal' }} />

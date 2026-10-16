@@ -1,6 +1,7 @@
 import { createContext, use, useCallback, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
 
 import { api, setSessionExpiredHandler, type Me } from '@/lib/api';
+import { unregisterPush } from '@/lib/push';
 import { loadTokens, saveTokens, type Tokens } from '@/lib/token-storage';
 
 type Session = {
@@ -85,6 +86,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       },
       signOut: async () => {
         const tokens = await loadTokens();
+        await unregisterPush();
         if (tokens) {
           // 서버에서 refresh 토큰 폐기. 실패해도 기기에서는 로그아웃한다.
           await api('/auth/logout', { method: 'POST', body: { refresh: tokens.refresh } }).catch(() => {});

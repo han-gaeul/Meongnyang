@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useSession } from '@/ctx';
 import { useTheme } from '@/hooks/use-theme';
+import { openChat } from '@/lib/chat';
 import { api, type Favor, type FavorApplication } from '@/lib/api';
 import { FAVOR_TERMS } from '@/lib/favor-terms';
 import { FAVOR_KIND_LABEL, FAVOR_STATUS_LABEL, minutesLabel, SIZE_LABEL, whenLabel } from '@/lib/format';
@@ -147,6 +148,11 @@ export default function FavorDetail() {
             <ThemedText type="smallBold">
               {f.is_requester ? `🤝 ${f.helper.nickname}님이 맡아 주세요` : '다른 이웃이 맡았어요'}
             </ThemedText>
+            {f.is_requester && f.status !== 'cancelled' && (
+              <ThemedText type="linkPrimary" onPress={() => f.helper && openChat(f.helper)}>
+                {f.helper.nickname}님에게 쪽지
+              </ThemedText>
+            )}
             {f.is_requester && f.status === 'matched' && (
               <ThemedText type="small" themeColor="textSecondary">
                 {f.visit_home ? '집 주소와 출입 방법을 맡은 이웃에게 따로 알려 주세요. ' : ''}
@@ -167,7 +173,12 @@ export default function FavorDetail() {
             )}
             {pending.map((a) => (
               <ThemedView key={a.id} type="backgroundElement" style={styles.card}>
-                <ThemedText type="smallBold">{a.user.nickname}</ThemedText>
+                <View style={styles.between}>
+                  <ThemedText type="smallBold">{a.user.nickname}</ThemedText>
+                  <ThemedText type="linkPrimary" onPress={() => openChat(a.user)}>
+                    쪽지
+                  </ThemedText>
+                </View>
                 {!!a.message && <ThemedText type="small">“{a.message}”</ThemedText>}
                 <View style={styles.row}>
                   <View style={styles.half}>
@@ -322,6 +333,9 @@ export default function FavorDetail() {
                 }[mine.status]
               }
             </ThemedText>
+            {mine.status !== 'rejected' && (
+              <Button title="보호자에게 쪽지" variant="secondary" onPress={() => openChat(f.requester)} />
+            )}
             {(mine.status === 'pending' || (mine.status === 'accepted' && f.status === 'matched')) && (
               <Button
                 title={mine.status === 'accepted' ? '약속 취소' : '신청 취소'}
@@ -356,4 +370,5 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: Spacing.three, paddingVertical: 12, fontSize: 16 },
   textarea: { minHeight: 80 },
   headerAction: { paddingHorizontal: Spacing.three },
+  between: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 });
