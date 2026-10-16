@@ -97,6 +97,25 @@ npx eas-cli@latest init
 
 `app.json`에 `extra.eas.projectId`가 생기면 앱을 다시 열 때 알림 권한을 묻고 토큰을 서버에 등록한다. 서버는 `server/.env`에 `PUSH_ENABLED=True`일 때만 실제로 보낸다. 안드로이드 Expo Go는 원격 푸시를 지원하지 않는다(개발 빌드 필요).
 
+## 배포
+
+- 서버: [`deploy/README.md`](deploy/README.md) (AWS EC2 + RDS + S3, Docker + Caddy 자동 HTTPS)
+- 지인 베타: `ALLOW_MOCK_PROVIDERS=True` + `BETA_INVITE_CODE`. 초대 코드를 아는 사람만 가입된다.
+
+### 앱 빌드 (EAS)
+
+`app/eas.json`의 `EXPO_PUBLIC_API_URL`을 실제 서버 도메인으로 바꾼 뒤:
+
+```bash
+cd app
+npx eas-cli@latest env:create --name EXPO_PUBLIC_KAKAO_JS_KEY --value 카카오JS키 --environment development --environment preview --environment production --visibility plaintext
+npx eas-cli@latest build --profile development --platform ios
+```
+
+- `development`: 개발 빌드(Expo Go 대신 설치하는 내 앱). 백그라운드 위치·안드로이드 푸시 등 Expo Go에서 안 되는 기능 확인용. 아이폰은 처음에 기기 등록(`eas device:create`)과 Apple Developer 계정이 필요하다.
+- `preview`: 지인에게 나눠 줄 내부 배포용
+- `production`: 스토어 제출용
+
 ## 개발용 mock 규칙
 
 | 대상 | 입력 | 결과 |
