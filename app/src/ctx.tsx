@@ -9,7 +9,7 @@ type Session = {
   isSignedIn: boolean;
   me: Me | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, nickname: string) => Promise<void>;
+  signUp: (email: string, password: string, nickname: string, inviteCode?: string) => Promise<void>;
   signOut: () => Promise<void>;
   reloadMe: () => Promise<void>;
 };
@@ -76,10 +76,10 @@ export function SessionProvider({ children }: PropsWithChildren) {
         const tokens = await api<Tokens>('/auth/login', { method: 'POST', body: { email, password }, auth: false });
         await start(tokens);
       },
-      signUp: async (email, password, nickname) => {
+      signUp: async (email, password, nickname, inviteCode) => {
         const tokens = await api<Tokens>('/auth/signup', {
           method: 'POST',
-          body: { email, password, nickname },
+          body: { email, password, nickname, invite_code: inviteCode ?? '' },
           auth: false,
         });
         await start(tokens);

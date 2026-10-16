@@ -25,8 +25,17 @@ IDENTITY_PROVIDER = env("IDENTITY_PROVIDER")
 PET_REGISTRY_PROVIDER = env("PET_REGISTRY_PROVIDER")
 GOOGLE_CLIENT_IDS = env("GOOGLE_CLIENT_IDS")
 
+# 지인 베타: 본인인증·등록번호 조회 계약 전에 mock으로 운영한다.
+# 이때는 초대 코드가 있어야 가입할 수 있다. 공개 출시 전에 반드시 끈다.
+ALLOW_MOCK_PROVIDERS = env.bool("ALLOW_MOCK_PROVIDERS", default=False)
+BETA_INVITE_CODE = env.str("BETA_INVITE_CODE", default="")
 if not DEBUG and "mock" in (IDENTITY_PROVIDER, PET_REGISTRY_PROVIDER):
-    raise ImproperlyConfigured("배포 환경에서는 mock 인증 제공자를 쓸 수 없습니다.")
+    if not ALLOW_MOCK_PROVIDERS:
+        raise ImproperlyConfigured("배포 환경에서는 mock 인증 제공자를 쓸 수 없습니다.")
+    if len(BETA_INVITE_CODE) < 8:
+        raise ImproperlyConfigured("mock 베타는 8자 이상 BETA_INVITE_CODE가 있어야 합니다(초대한 사람만 가입).")
+# 초대 코드가 있으면 가입할 때 확인한다 (mock 베타가 아니어도 비공개 운영에 쓸 수 있음)
+INVITE_REQUIRED = bool(BETA_INVITE_CODE)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -169,8 +178,30 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
+# 배포: 리버스 프록시(Caddy) 뒤에서 HTTPS로만
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"plain": {"format": "%(asctime)s %(levelname)s %(name)s %(message)s"}},
+    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "plain"}},
+    "root": {"handlers": ["console"], "level": env.str("LOG_LEVEL", default="INFO")},
+    "loggers": {"django.db.backends": {"level": "WARNING"}},
+}
+
 if not DEBUG:
+    # /admin 화면용 정적 파일은 앱 서버가 직접 낸다 (collectstatic 필요)
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+    STORAGES["staticfiles"] = {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # 헬스체크는 프록시를 거치지 않고 http로 직접 부른다
+    SECURE_REDIRECT_EXEMPT = [r"^healthz$"]
+    SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=60 * 60 * 24 * 30)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False  # DuckDNS 같은 공유 도메인일 수 있어 하위 도메인은 건드리지 않는다
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    # 하위 도메인 HSTS·preload 목록 등록은 자체 도메인을 정한 뒤 판단 (공유 도메인에서는 켜면 안 됨)
+    SILENCED_SYSTEM_CHECKS = ["security.W005", "security.W021"]
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True

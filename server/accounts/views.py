@@ -14,6 +14,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .identity import get_identity_provider, hash_ci
 from .models import IdentityVerification, SocialAccount
 from .serializers import (
+    AuthConfigSerializer,
+    check_invite,
     IdentityVerifySerializer,
     LogoutSerializer,
     MeSerializer,
@@ -76,6 +78,7 @@ class SocialLoginView(APIView):
         ).first()
         created = account is None
         if created:
+            check_invite(serializer.validated_data.get("invite_code"))
             with transaction.atomic():
                 email = profile.email
                 if email and User.objects.filter(email__iexact=email).exists():
@@ -196,3 +199,19 @@ class BlockView(APIView):
     def delete(self, request, pk):
         request.user.blocks.remove(get_object_or_404(User, pk=pk))
         return Response(status=204)
+
+
+class AuthConfigView(APIView):
+    """가입 화면용: 초대 코드가 필요한지, 베타 운영 중인지"""
+
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    @extend_schema(responses={200: AuthConfigSerializer})
+    def get(self, request):
+        from django.conf import settings
+
+        return Response({
+            "invite_required": settings.INVITE_REQUIRED,
+            "beta": "mock" in (settings.IDENTITY_PROVIDER, settings.PET_REGISTRY_PROVIDER),
+        })
