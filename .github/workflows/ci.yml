@@ -51,7 +51,7 @@ jobs:
           docker run -d --name api -p 8000:8000 \
             -e DEBUG=False -e SECRET_KEY=ci-docker-not-a-real-secret-0123456789abcdefghijklmnopqrst \
             -e CI_HASH_SECRET=ci-docker-not-a-real-secret-0123456789abcdefghijk \
-            -e ALLOWED_HOSTS=localhost,127.0.0.1 -e ALLOW_MOCK_PROVIDERS=True -e BETA_INVITE_CODE=ci-invite-code \
+            -e ALLOWED_HOSTS=api.example.com -e ALLOW_MOCK_PROVIDERS=True -e BETA_INVITE_CODE=ci-invite-code \
             meongnyang-api
           for i in $(seq 1 30); do curl -fs localhost:8000/healthz && exit 0; sleep 2; done
           docker logs api; exit 1
