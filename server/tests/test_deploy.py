@@ -66,3 +66,12 @@ def test_social_signup_needs_invite_but_existing_login_does_not(api, settings):
 def test_healthz(api):
     res = api.get("/healthz")
     assert res.status_code == 200 and res.json() == {"ok": True}
+
+
+@pytest.mark.django_db
+def test_beta_page_links_to_update_channel(client):
+    res = client.get("/beta")
+    assert res.status_code == 200
+    body = res.content.decode()
+    assert "exps://u.expo.dev/b8bcdae6-6579-450b-806d-7adeb4d72d33?channel-name=beta&amp;runtime-version=exposdk%3A57.0.0" in body
+    assert "초대 코드" in body

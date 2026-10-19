@@ -102,6 +102,20 @@ npx eas-cli@latest init
 - 서버: [`deploy/README.md`](deploy/README.md) (AWS EC2 + RDS + S3, Docker + Caddy 자동 HTTPS)
 - 지인 베타: `ALLOW_MOCK_PROVIDERS=True` + `BETA_INVITE_CODE`. 초대 코드를 아는 사람만 가입된다.
 
+### 지인 베타 (Expo Go + EAS Update)
+
+Mac을 켜 두지 않아도 지인이 Expo Go로 연다. Expo Go 정책상 **같은 Expo 조직 멤버**만 열 수 있다.
+
+1. expo.dev에서 조직을 만들고 프로젝트를 조직으로 옮긴 뒤 `app/app.json`의 `owner`를 조직 이름으로 바꾼다.
+2. 조직 Members에서 지인의 Expo 가입 이메일을 **Viewer**로 초대한다.
+3. 최신 버전 올리기:
+
+```bash
+./scripts/beta-update.sh "바뀐 내용"
+```
+
+지인에게는 `https://meongnyang.duckdns.org/beta` 링크(설치 → 가입 → 초대 수락 → 열기 안내)와 초대 코드만 보낸다.
+
 ### 앱 빌드 (EAS)
 
 `app/eas.json`의 `EXPO_PUBLIC_API_URL`을 실제 서버 도메인으로 바꾼 뒤:

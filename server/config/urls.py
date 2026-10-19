@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.urls import include, path
 from django.db import connection
 from django.http import JsonResponse
+from django.shortcuts import render
+from urllib.parse import quote
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
@@ -17,8 +19,19 @@ def healthz(request):
     return JsonResponse({"ok": True})
 
 
+def beta(request):
+    """지인 베타 안내: Expo Go 설치 → 초대 수락 → EAS Update 채널 열기"""
+    open_url = (
+        f"exps://u.expo.dev/{settings.EXPO_PROJECT_ID}"
+        f"?channel-name={quote(settings.EXPO_UPDATE_CHANNEL)}"
+        f"&runtime-version={quote(settings.EXPO_RUNTIME_VERSION, safe='')}"
+    )
+    return render(request, "beta.html", {"open_url": open_url})
+
+
 urlpatterns = [
     path("healthz", healthz),
+    path("beta", beta),
     path("admin/", admin.site.urls),
     path("api/v1/", include("accounts.urls")),
     path("api/v1/", include("pets.urls")),
