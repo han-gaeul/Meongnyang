@@ -37,6 +37,10 @@ if not DEBUG and "mock" in (IDENTITY_PROVIDER, PET_REGISTRY_PROVIDER):
         raise ImproperlyConfigured("mock 베타는 8자 이상 BETA_INVITE_CODE가 있어야 합니다(초대한 사람만 가입).")
 # 초대 코드가 있으면 가입할 때 확인한다 (mock 베타가 아니어도 비공개 운영에 쓸 수 있음)
 INVITE_REQUIRED = bool(BETA_INVITE_CODE)
+# 지인 베타 안내 페이지(/beta)에서 Expo Go로 여는 링크. EAS Update 채널을 가리킨다.
+EXPO_PROJECT_ID = env.str("EXPO_PROJECT_ID", default="b8bcdae6-6579-450b-806d-7adeb4d72d33")
+EXPO_UPDATE_CHANNEL = env.str("EXPO_UPDATE_CHANNEL", default="beta")
+EXPO_RUNTIME_VERSION = env.str("EXPO_RUNTIME_VERSION", default="exposdk:57.0.0")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -78,7 +82,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

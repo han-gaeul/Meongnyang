@@ -80,6 +80,9 @@
         "projectId": "b8bcdae6-6579-450b-806d-7adeb4d72d33"
       }
     },
-    "owner": "gaeulhan"
+    "owner": "gaeulhan",
+    "updates": {
+      "url": "https://u.expo.dev/b8bcdae6-6579-450b-806d-7adeb4d72d33"
+    }
   }
 }
