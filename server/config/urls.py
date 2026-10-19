@@ -26,7 +26,7 @@ def beta(request):
         f"?channel-name={quote(settings.EXPO_UPDATE_CHANNEL)}"
         f"&runtime-version={quote(settings.EXPO_RUNTIME_VERSION, safe='')}"
     )
-    return render(request, "beta.html", {"open_url": open_url})
+    return render(request, "beta.html", {"ios_url": open_url, "android_url": settings.BETA_ANDROID_URL})
 
 
 urlpatterns = [
