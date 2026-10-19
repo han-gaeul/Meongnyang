@@ -6,66 +6,135 @@
 <meta name="robots" content="noindex">
 <title>멍냥동네 베타 테스트</title>
 <style>
-  :root { --bg:#FFF8F2; --card:#fff; --ink:#2B211A; --sub:#7A6A5D; --line:#F0E2D4; --brand:#E07A2E; --brand-ink:#fff; }
+  :root { --bg:#FFF8F2; --card:#fff; --ink:#2B211A; --sub:#7A6A5D; --line:#F0E2D4; --brand:#E07A2E; --brand-ink:#fff; --soft:#FDEEE2; }
   @media (prefers-color-scheme: dark) {
-    :root { --bg:#1B1612; --card:#26201A; --ink:#F5EDE6; --sub:#B5A595; --line:#3A2F26; }
+    :root { --bg:#1B1612; --card:#26201A; --ink:#F5EDE6; --sub:#B5A595; --line:#3A2F26; --soft:#33271E; }
   }
   * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif; }
-  main { max-width: 480px; margin: 0 auto; padding: 32px 16px 48px; }
-  header { text-align:center; margin-bottom: 24px; }
+  body { margin:0; background:var(--bg); color:var(--ink); font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif; word-break: keep-all; }
+  main { max-width: 480px; margin: 0 auto; padding: 32px 16px 56px; }
+  header { text-align:center; margin-bottom: 20px; }
   .logo { font-size: 44px; }
-  h1 { font-size: 24px; margin: 4px 0; }
+  h1 { font-size: 24px; margin: 4px 0 6px; }
   .lead { color: var(--sub); margin: 0; }
+  .tabs { display:flex; gap:8px; margin: 20px 0 16px; background: var(--card); border:1px solid var(--line); border-radius: 14px; padding: 4px; }
+  .tabs button { flex:1; border:0; background:transparent; color:var(--sub); font: inherit; font-weight:600; padding: 10px; border-radius: 10px; cursor:pointer; }
+  .tabs button[aria-selected="true"] { background: var(--brand); color: var(--brand-ink); }
+  .phase { font-size: 14px; font-weight: 700; color: var(--brand); margin: 22px 4px 8px; }
   ol { list-style: none; padding: 0; margin: 0; counter-reset: step; }
-  li { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 18px 60px; margin-bottom: 12px; position: relative; counter-increment: step; }
+  li { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 18px 60px; margin-bottom: 10px; position: relative; counter-increment: step; }
   li::before { content: counter(step); position:absolute; left:18px; top:18px; width:28px; height:28px; border-radius:50%; background:var(--brand); color:var(--brand-ink); font-weight:700; display:flex; align-items:center; justify-content:center; font-size:15px; }
   li h2 { font-size: 17px; margin: 0 0 4px; }
   li p { margin: 0; color: var(--sub); font-size: 15px; }
-  .btn { display:block; text-align:center; margin-top: 12px; padding: 13px; border-radius: 12px; background: var(--brand); color: var(--brand-ink); font-weight: 700; text-decoration: none; }
+  li p + p { margin-top: 6px; }
+  b { color: var(--ink); }
+  .tag { display:inline-block; background: var(--soft); color: var(--ink); border-radius: 6px; padding: 0 6px; font-weight: 600; }
+  .btn { display:block; text-align:center; margin-top: 12px; padding: 14px; border-radius: 12px; background: var(--brand); color: var(--brand-ink); font-weight: 700; text-decoration: none; }
   .btn.ghost { background: transparent; color: var(--brand); border: 1.5px solid var(--brand); }
-  .note { background: var(--card); border: 1px dashed var(--line); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: var(--sub); margin-top: 20px; }
-  .note b { color: var(--ink); }
+  .box { background: var(--card); border: 1px dashed var(--line); border-radius: 14px; padding: 16px; font-size: 15px; color: var(--sub); margin-top: 18px; }
+  .box h3 { margin: 0 0 8px; font-size: 16px; color: var(--ink); }
+  .box p { margin: 0 0 10px; }
+  .box p:last-child { margin-bottom: 0; }
+  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
 <main>
   <header>
     <div class="logo">🐾</div>
-    <h1>멍냥동네 베타 테스트</h1>
-    <p class="lead">아직 앱스토어에 없어서, 테스트용 앱(Expo Go)으로 열어요.</p>
+    <h1>멍냥동네 테스트 방법</h1>
+    <p class="lead">아직 앱스토어에 없어서 조금 다른 방법으로 설치해요.<br>천천히 따라오면 5분이면 끝나요!</p>
   </header>
 
-  <ol>
-    <li>
-      <h2>Expo Go 설치</h2>
-      <p>테스트용 앱을 여는 무료 앱이에요.</p>
-      <a class="btn ghost" href="https://apps.apple.com/app/expo-go/id982107779">아이폰: 앱스토어에서 받기</a>
-      <a class="btn ghost" href="https://play.google.com/store/apps/details?id=host.exp.exponent">안드로이드: 플레이스토어에서 받기</a>
-    </li>
-    <li>
-      <h2>Expo Go에서 회원가입</h2>
-      <p>Expo Go를 열고 <b>Sign up</b>으로 가입한 뒤, 가입한 <b>이메일 주소</b>를 가을에게 알려 주세요.</p>
-    </li>
-    <li>
-      <h2>초대 메일 수락</h2>
-      <p>Expo에서 온 초대 메일의 <b>Accept</b>를 눌러 주세요. 메일이 안 보이면 스팸함도 확인해 주세요.</p>
-    </li>
-    <li>
-      <h2>멍냥동네 열기</h2>
-      <p>이 페이지를 휴대폰에서 연 상태로 아래 버튼을 누르세요. 다음부터는 Expo Go 첫 화면에서 바로 열 수 있어요.</p>
-      <a class="btn" href="{{ open_url }}">멍냥동네 열기</a>
-    </li>
-    <li>
-      <h2>가입하기</h2>
-      <p>앱에서 회원가입할 때 <b>초대 코드</b>를 넣어 주세요. 코드는 가을에게 따로 받아요.</p>
-    </li>
-  </ol>
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-ios" aria-selected="true" data-target="ios">아이폰</button>
+    <button role="tab" id="tab-android" aria-selected="false" data-target="android">안드로이드</button>
+  </div>
 
-  <div class="note">
-    <b>베타 기간 안내</b><br>
-    본인인증·반려동물 등록번호 확인은 테스트용이에요. 본인인증 칸에는 <b>mock-ok-</b> 뒤에 아무 영문(예: mock-ok-minji)을, 등록번호는 <b>1로 시작하는 15자리</b> 아무 숫자를 넣으면 돼요. 실제 개인정보는 넣지 마세요.
+  <!-- 아이폰 -->
+  <section id="ios">
+    <div class="phase">처음 한 번만 하면 돼요</div>
+    <ol>
+      <li>
+        <h2>'Expo Go' 앱 설치</h2>
+        <p>테스트 중인 앱을 열어 주는 무료 앱이에요. 멍냥동네는 이 앱 안에서 열려요.</p>
+        <a class="btn ghost" href="https://apps.apple.com/app/expo-go/id982107779">앱스토어에서 Expo Go 받기</a>
+      </li>
+      <li>
+        <h2>Expo Go에서 회원가입</h2>
+        <p>Expo Go를 열고 <span class="tag">Sign up</span>을 눌러 이메일로 가입해요.</p>
+        <p>가입한 <b>이메일 주소를 가을에게 카톡으로</b> 알려 주세요.</p>
+      </li>
+      <li>
+        <h2>초대 메일 수락</h2>
+        <p>가을이 초대를 보내면 Expo에서 메일이 와요. 메일 안의 <span class="tag">Accept</span>를 누르면 끝!</p>
+        <p>메일이 안 보이면 <b>스팸함</b>도 확인해 주세요.</p>
+      </li>
+    </ol>
+
+    <div class="phase">초대를 수락했다면</div>
+    <ol>
+      <li>
+        <h2>멍냥동네 열기</h2>
+        <p>이 페이지를 <b>아이폰에서</b> 열고 아래 버튼을 눌러요. Expo Go가 열리면서 멍냥동네가 떠요.</p>
+        <a class="btn" href="{{ ios_url }}">멍냥동네 열기</a>
+        <p style="margin-top:10px">다음부터는 Expo Go를 열면 첫 화면에 멍냥동네가 있어요.</p>
+      </li>
+      <li>
+        <h2>멍냥동네 회원가입</h2>
+        <p>앱에서 가입할 때 <b>초대 코드</b>를 넣어요. 코드는 가을에게 받아요.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 안드로이드 -->
+  <section id="android" hidden>
+    <div class="phase">설치는 한 번만</div>
+    <ol>
+      <li>
+        <h2>앱 설치하기</h2>
+        <p>아래 버튼을 누르고 <span class="tag">Install</span>을 눌러 파일을 받아요.</p>
+        <a class="btn" href="{{ android_url }}">멍냥동네 설치하기</a>
+      </li>
+      <li>
+        <h2>설치 허용</h2>
+        <p>받은 파일을 열면 "출처를 알 수 없는 앱" 안내가 나와요. <span class="tag">설정</span> → <span class="tag">허용</span>을 누르고 설치하면 돼요.</p>
+        <p>앱스토어 밖에서 받는 앱이라 나오는 안내예요. 처음 한 번만 하면 돼요.</p>
+      </li>
+      <li>
+        <h2>멍냥동네 회원가입</h2>
+        <p>홈 화면의 멍냥동네 아이콘을 열고, 가입할 때 <b>초대 코드</b>를 넣어요. 코드는 가을에게 받아요.</p>
+      </li>
+    </ol>
+  </section>
+
+  <div class="box">
+    <h3>가입할 때 이렇게 넣어 주세요</h3>
+    <p>지금은 테스트 기간이라 진짜 인증을 하지 않아요. <b>실제 개인정보는 넣지 마세요.</b></p>
+    <p>• 본인인증: <span class="tag">mock-ok-</span> 뒤에 아무 영어 (예: mock-ok-minji)</p>
+    <p>• 반려동물 등록번호: <b>1로 시작하는 숫자 15자리</b> 아무거나 (예: 100000000000001)</p>
+  </div>
+
+  <div class="box">
+    <h3>이럴 땐 이렇게</h3>
+    <p><b>"is not viewable in Expo Go" 오류가 나와요</b><br>아직 초대를 수락하지 않았거나, Expo Go에 다른 계정으로 로그인돼 있어요. 초대 메일의 Accept를 누르고, Expo Go 오른쪽 아래 프로필에서 같은 이메일로 로그인했는지 확인해 주세요.</p>
+    <p><b>새 버전이 안 보여요</b><br>앱을 완전히 껐다가(위로 쓸어 올리기) 다시 열어 주세요.</p>
+    <p><b>그 밖에 이상한 점</b><br>화면을 캡처해서 가을에게 보내 주시면 고칠게요. 🙏</p>
   </div>
 </main>
+<script>
+  (function () {
+    var tabs = document.querySelectorAll('.tabs button');
+    function show(id) {
+      tabs.forEach(function (t) {
+        var on = t.dataset.target === id;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        document.getElementById(t.dataset.target).hidden = !on;
+      });
+    }
+    tabs.forEach(function (t) { t.addEventListener('click', function () { show(t.dataset.target); }); });
+    if (/android/i.test(navigator.userAgent)) show('android');
+  })();
+</script>
 </body>
 </html>

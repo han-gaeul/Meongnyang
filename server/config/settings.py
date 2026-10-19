@@ -41,6 +41,11 @@ INVITE_REQUIRED = bool(BETA_INVITE_CODE)
 EXPO_PROJECT_ID = env.str("EXPO_PROJECT_ID", default="b8bcdae6-6579-450b-806d-7adeb4d72d33")
 EXPO_UPDATE_CHANNEL = env.str("EXPO_UPDATE_CHANNEL", default="beta")
 EXPO_RUNTIME_VERSION = env.str("EXPO_RUNTIME_VERSION", default="exposdk:57.0.0")
+# 안드로이드 APK 설치 링크 (새로 빌드하면 .env.prod의 BETA_ANDROID_URL만 바꾼다)
+BETA_ANDROID_URL = env.str(
+    "BETA_ANDROID_URL",
+    default="https://expo.dev/accounts/meongnyang/projects/meongnyang-dongne/builds/48530cdf-7afe-4646-a405-8969c94ea2ec",
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",

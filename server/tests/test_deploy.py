@@ -75,3 +75,4 @@ def test_beta_page_links_to_update_channel(client):
     body = res.content.decode()
     assert "exps://u.expo.dev/b8bcdae6-6579-450b-806d-7adeb4d72d33?channel-name=beta&amp;runtime-version=exposdk%3A57.0.0" in body
     assert "초대 코드" in body
+    assert "builds/48530cdf" in body
