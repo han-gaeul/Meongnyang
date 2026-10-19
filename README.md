@@ -116,6 +116,14 @@ Mac을 켜 두지 않아도 지인이 Expo Go로 연다. Expo Go 정책상 **같
 
 지인에게는 `https://meongnyang.duckdns.org/beta` 링크(설치 → 가입 → 초대 수락 → 열기 안내)와 초대 코드만 보낸다.
 
+### 안드로이드 지인 배포 (APK, 무료)
+
+```bash
+./scripts/android-apk.sh
+```
+
+빌드가 끝나면 나오는 설치 링크를 보낸다(Expo 계정 없이 열림: 프로젝트 설정 "Unauthenticated access to internal distribution builds" ON). APK는 `beta` 채널을 받으므로 이후 JS 변경은 `beta-update.sh`로 반영된다. 네이티브 패키지를 추가했을 때만 APK를 다시 빌드한다.
+
 ### 앱 빌드 (EAS)
 
 `app/eas.json`의 `EXPO_PUBLIC_API_URL`을 실제 서버 도메인으로 바꾼 뒤:
